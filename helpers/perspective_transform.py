@@ -72,18 +72,20 @@ class PerspectiveTransformer:
             ValueError: If points are not 2D coordinates.
         """
         if points.size == 0:
-            return points # Return empty array if no points are provided
+            return points
 
-        # Ensure points are 2D coordinates
         if points.shape[1] != 2:
             raise ValueError("Input points must be 2D coordinates with shape (M, 2).")
 
-        # Reshape points to (N, 1, 2) as required by cv2.perspectiveTransform
-        # and ensure float32 type.
         reshaped_points = points.reshape(-1, 1, 2).astype(np.float32)
-        
-        # Apply the perspective transformation
         transformed_points = cv2.perspectiveTransform(reshaped_points, self.m)
-        
-        # Reshape the transformed points back to (N, 2) and ensure float32 type.
         return transformed_points.reshape(-1, 2).astype(np.float32)
+
+    def warped_image(
+        self,
+        img: np.ndarray[np.float32],
+        N: int
+    ) -> np.ndarray[np.float32]:
+        
+        warped_image = cv2.warpPerspective(img, self.m, (N, N))
+        return warped_image
