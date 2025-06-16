@@ -1,5 +1,6 @@
 .venv/
 __pycache__
 images/
-runs3/
+runs_piece_detection/
+runs_corner_detection/
 test.py
