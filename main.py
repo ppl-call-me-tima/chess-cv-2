@@ -49,15 +49,13 @@ def detect_corners(corner_model, image):
     
     if corners is not None:
         corners = sort_points_by_angle(corners)
-
-        # transformed_points = transformer.transform_points(pieces_xy)
-
+        
         for i in range(len(corners)):
             corner = tuple(corners[i])
             cv2.circle(image, corner, 10, (0, 255, 0), -1)
             cv2.putText(image, f"{i} : ({corner[0]}, {corner[1]})", corner, 1, 1, (255, 255, 255), 1)
 
-        return corners
+    return corners
 
 def detect_pieces(piece_model, image):
     result = piece_model.predict(image, conf=0.5, device=0)
@@ -79,29 +77,34 @@ def main():
     corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
     piece_model = YOLO(r"runs_piece_detection\content\runs\detect\train\weights\best.pt")
 
+    not_found = corners_not_detected()
+
     while True:
         # ret, image = cap.read()
-        image = cv2.imread(r"images\2.png")
+        image = cv2.imread(r"C:\Users\2648a\Pictures\Camera Roll\WIN_20250619_04_08_37_Pro.jpg")
         
         corners = detect_corners(corner_model, image)
         piece_xy, piece_class = detect_pieces(piece_model, image)
         
-        transformer = PerspectiveTransformer(corners, BOARD_POINTS)
-        warped = transformer.warp_image(image, N)
-        warped_xy = transformer.transform_points(piece_xy)
-        
-        chess = Chessboard(warped_xy, piece_class, N)
-        board = chess.chessboard()
-        
-        annotate_corners(warped, N)
-        annotate_pieces(warped, warped_xy)
-        
-        # cv2.imwrite("images\warped2.jpg", warped)
-        # cv2.imwrite("images\board2.jpg", board)
-        
-        cv2.imshow("final image", image)
-        cv2.imshow("warped", warped)
-        cv2.imshow("board", board)
+        if corners is None:
+            cv2.imshow("Corners Not Detected", not_found)
+        else:
+            transformer = PerspectiveTransformer(corners, BOARD_POINTS)
+            warped = transformer.warp_image(image, N)
+            warped_xy = transformer.transform_points(piece_xy)
+            
+            chess = Chessboard(warped_xy, piece_class, N)
+            board = chess.chessboard()
+            
+            annotate_corners(warped, N)
+            annotate_pieces(warped, warped_xy)
+            
+            # cv2.imwrite("images\warped2.jpg", warped)
+            # cv2.imwrite("images\board2.jpg", board)
+            
+            cv2.imshow("final image", image)
+            cv2.imshow("warped", warped)
+            cv2.imshow("board", board)
         
         if cv2.waitKey(20) == 27:
             break

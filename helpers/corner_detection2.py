@@ -5,7 +5,7 @@ def get_chessboard_corners(result, image):
     # result[0].show()
     
     if result.masks is None:
-        return None, "No chessboard detected"
+        return None
     
     mask = result.masks.data[0].cpu().numpy()
     mask = (mask * 255).astype(np.uint8)
@@ -17,7 +17,7 @@ def get_chessboard_corners(result, image):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if not contours:
-        return None, "No contours found in mask"
+        return None
     
     # Get largest contour
     largest_contour = max(contours, key=cv2.contourArea)
