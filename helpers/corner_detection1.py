@@ -58,8 +58,7 @@ def get_corners_from_binary_mask(binary_mask):
     """
     # Find all contours in the binary mask
     # cv2.RETR_EXTERNAL retrieves only the extreme outer contours.
-    contours, _ = cv2.findContours(
-        binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if not contours:
         print("Warning: No contours found in the mask.")
@@ -70,14 +69,10 @@ def get_corners_from_binary_mask(binary_mask):
 
     # Determine the extreme points along the contour
     # The contour is a list of (x, y) points
-    leftmost = tuple(
-        chessboard_contour[chessboard_contour[:, :, 0].argmin()][0])
-    rightmost = tuple(
-        chessboard_contour[chessboard_contour[:, :, 0].argmax()][0])
-    topmost = tuple(
-        chessboard_contour[chessboard_contour[:, :, 1].argmin()][0])
-    bottommost = tuple(
-        chessboard_contour[chessboard_contour[:, :, 1].argmax()][0])
+    leftmost = tuple(chessboard_contour[chessboard_contour[:, :, 0].argmin()][0])
+    rightmost = tuple(chessboard_contour[chessboard_contour[:, :, 0].argmax()][0])
+    topmost = tuple(chessboard_contour[chessboard_contour[:, :, 1].argmin()][0])
+    bottommost = tuple(chessboard_contour[chessboard_contour[:, :, 1].argmax()][0])
 
     # Note: For a non-rotated rectangle, these points are mid-sides.
     # For a rotated rectangle, these points are the corners.
