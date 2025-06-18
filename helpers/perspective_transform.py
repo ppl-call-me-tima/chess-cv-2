@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 
@@ -53,6 +54,12 @@ class PerspectiveTransformer:
                 "collinear points or insufficient variation in the input points."
             )
 
+    def shift_warped_y_coord(self, warped_xy):
+        SHIFT = int(os.getenv("PIECE_Y_SHIFT"))
+        
+        for i in range(len(warped_xy)):
+            warped_xy[i][1] -= SHIFT
+
     def transform_points(
         self,
         points: np.ndarray[np.float32]
@@ -79,9 +86,11 @@ class PerspectiveTransformer:
 
         reshaped_points = points.reshape(-1, 1, 2).astype(np.float32)
         transformed_points = cv2.perspectiveTransform(reshaped_points, self.m)
-        return transformed_points.reshape(-1, 2).astype(np.float32)
+        warped_xy = transformed_points.reshape(-1, 2).astype(int)
+        self.shift_warped_y_coord(warped_xy)  # slightly problematic, because we cna't assume just shifting -ve Y would perfectly align the piece
+        return warped_xy
 
-    def warped_image(
+    def warp_image(
         self,
         img: np.ndarray[np.float32],
         N: int

@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv(dotenv_path="dimensions.env")
+
 from ultralytics import YOLO
 import cv2
 import numpy as np
@@ -6,13 +10,16 @@ import supervision as sv
 
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.corner_detection2 import get_chessboard_corners
+from helpers.chessboard import Chessboard
 from helpers.misc import *
 
 from helpers.annotate.corners import annotate_corners
 from helpers.annotate.pieces import annotate_pieces
 
-PADDING = 33
-N = 800 + 2 * PADDING
+BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
+BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
+
+N = BOARD_DIMENSION + 2 * BOARD_PADDING
 
 BOARD_POINTS = np.array([
     (0, 0),
@@ -46,7 +53,7 @@ def detect_corners(corner_model, image):
         # transformed_points = transformer.transform_points(pieces_xy)
 
         for i in range(len(corners)):
-            corner = tuple(corners[i].astype(int))
+            corner = tuple(corners[i])
             cv2.circle(image, corner, 10, (0, 255, 0), -1)
             cv2.putText(image, f"{i} : ({corner[0]}, {corner[1]})", corner, 1, 1, (255, 255, 255), 1)
 
@@ -80,16 +87,21 @@ def main():
         piece_xy, piece_class = detect_pieces(piece_model, image)
         
         transformer = PerspectiveTransformer(corners, BOARD_POINTS)
-        warped = transformer.warped_image(image, N)
+        warped = transformer.warp_image(image, N)
         warped_xy = transformer.transform_points(piece_xy)
         
-        annotate_corners(warped)
+        chess = Chessboard(warped_xy, piece_class, N)
+        board = chess.chessboard()
+        
+        annotate_corners(warped, N)
         annotate_pieces(warped, warped_xy)
         
         # cv2.imwrite("images\warped2.jpg", warped)
+        # cv2.imwrite("images\board2.jpg", board)
         
         cv2.imshow("final image", image)
         cv2.imshow("warped", warped)
+        cv2.imshow("board", board)
         
         if cv2.waitKey(20) == 27:
             break

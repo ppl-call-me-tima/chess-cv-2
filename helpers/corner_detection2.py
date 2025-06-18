@@ -34,7 +34,7 @@ def get_chessboard_corners(result, image):
         hull = cv2.convexHull(largest_contour)
         corners = get_four_corners_from_hull(hull)
     
-    return corners
+    return corners.astype(int)
 
 def get_four_corners_from_hull(hull):
     """Extract 4 corner points from convex hull"""
