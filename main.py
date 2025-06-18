@@ -5,11 +5,11 @@ import argparse
 import supervision as sv
 
 from helpers.perspective_transform import PerspectiveTransformer
-from helpers.corner_detection1 import get_corners
 from helpers.corner_detection2 import get_chessboard_corners
 from helpers.misc import *
 
 from helpers.annotate.corners import annotate_corners
+from helpers.annotate.pieces import annotate_pieces
 
 PADDING = 33
 N = 800 + 2 * PADDING
@@ -41,19 +41,16 @@ def detect_corners(corner_model, image):
     corners = get_chessboard_corners(result[0], image)
     
     if corners is not None:
-        sorted_corners = sort_points_by_angle(corners)
+        corners = sort_points_by_angle(corners)
 
-        transformer = PerspectiveTransformer(sorted_corners, BOARD_POINTS)
         # transformed_points = transformer.transform_points(pieces_xy)
-        warped = transformer.warped_image(image, N)
-        # cv2.imshow("Warped Image", warped)
 
-        for i in range(len(sorted_corners)):
-            corner = tuple(sorted_corners[i].astype(int))
+        for i in range(len(corners)):
+            corner = tuple(corners[i].astype(int))
             cv2.circle(image, corner, 10, (0, 255, 0), -1)
             cv2.putText(image, f"{i} : ({corner[0]}, {corner[1]})", corner, 1, 1, (255, 255, 255), 1)
 
-        return warped
+        return corners
 
 def detect_pieces(piece_model, image):
     result = piece_model.predict(image, conf=0.5, device=0)
@@ -67,7 +64,7 @@ def detect_pieces(piece_model, image):
         cv2.circle(image, coods, 5, (255,0,0), -1)
         cv2.putText(image, f"{piece_class[i]}", coods, 0, 1, (0,0,0), 1)
     
-    return piece_xy
+    return piece_xy, piece_class
 
 def main():
     cap = init_cap()
@@ -79,14 +76,21 @@ def main():
         # ret, image = cap.read()
         image = cv2.imread(r"images\2.png")
         
-        warped = detect_corners(corner_model, image)
-        xy = detect_pieces(piece_model, image)
+        corners = detect_corners(corner_model, image)
+        piece_xy, piece_class = detect_pieces(piece_model, image)
+        
+        transformer = PerspectiveTransformer(corners, BOARD_POINTS)
+        warped = transformer.warped_image(image, N)
+        warped_xy = transformer.transform_points(piece_xy)
         
         annotate_corners(warped)
-        cv2.imwrite("images\warped.jpg", warped)
+        annotate_pieces(warped, warped_xy)
+        
+        # cv2.imwrite("images\warped2.jpg", warped)
         
         cv2.imshow("final image", image)
         cv2.imshow("warped", warped)
+        
         if cv2.waitKey(20) == 27:
             break
 
