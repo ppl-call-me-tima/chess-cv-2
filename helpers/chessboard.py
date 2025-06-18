@@ -33,7 +33,7 @@ class Chessboard:
 
             self.matrix.append(row)
     
-    def symbol(class_name):
+    def symbol(self, class_name):
         if (class_name[5:] == "Knight"):
             symbol = "N"
         else:
@@ -65,6 +65,21 @@ class Chessboard:
 
         fen = fen[:-1]
         return fen
+
+    def rotate_anticlockwise(self):
+        rotated = []
+
+        for j in range(7, -1, -1):
+            col = []
+
+            for i in range(8):
+                col.append(self.matrix[i][j])
+
+            rotated.append(col)
+
+        for i in range(8):
+            for j in range(8):
+                self.matrix[i][j] = rotated[i][j]
 
     def chessboard(self) -> np.ndarray:
         chessboard = chess.Board(fen=self.FEN())

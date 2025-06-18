@@ -81,7 +81,7 @@ def main():
 
     while True:
         # ret, image = cap.read()
-        image = cv2.imread(r"C:\Users\2648a\Pictures\Camera Roll\WIN_20250619_04_08_37_Pro.jpg")
+        image = cv2.imread(r"images\1.png")
         
         corners = detect_corners(corner_model, image)
         piece_xy, piece_class = detect_pieces(piece_model, image)
@@ -94,6 +94,7 @@ def main():
             warped_xy = transformer.transform_points(piece_xy)
             
             chess = Chessboard(warped_xy, piece_class, N)
+            chess.rotate_anticlockwise()
             board = chess.chessboard()
             
             annotate_corners(warped, N)
