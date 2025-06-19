@@ -36,6 +36,7 @@ def get_chessboard_corners(result, image):
     
     return corners.astype(int)
 
+
 def get_four_corners_from_hull(hull):
     """Extract 4 corner points from convex hull"""
     hull = hull.reshape(-1, 2)

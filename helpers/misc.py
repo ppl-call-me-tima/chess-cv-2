@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import numpy as np
 
@@ -10,6 +11,7 @@ def sort_points_by_angle(pts):
 
     sorted_indices = np.argsort(angles)
     return pts[sorted_indices]
+
 
 def corners_not_detected():
     text = "Corners\nNot\nDetected"
@@ -30,3 +32,18 @@ def corners_not_detected():
         cv2.putText(img, line, (x, y), font, scale, color, thickness)
     
     return img
+
+
+def init_cap():
+    parser = argparse.ArgumentParser(description="argeparse_desc")
+    parser.add_argument("--webcam-resolution", default=[1280, 720], nargs=2, type=int)
+    args = parser.parse_args()
+    
+    frame_width, frame_height = args.webcam_resolution
+    
+    cap = cv2.VideoCapture(1)
+    
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+    
+    return cap

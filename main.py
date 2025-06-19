@@ -5,16 +5,16 @@ load_dotenv(dotenv_path="dimensions.env")
 from ultralytics import YOLO
 import cv2
 import numpy as np
-import argparse
-import supervision as sv
 
 from helpers.perspective_transform import PerspectiveTransformer
-from helpers.corner_detection2 import get_chessboard_corners
 from helpers.chessboard import Chessboard
 from helpers.misc import *
 
-from helpers.annotate.corners import annotate_corners
-from helpers.annotate.pieces import annotate_pieces
+from helpers.annotate.warped_corners import annotate_warped_corners
+from helpers.annotate.warped_pieces import annotate_warped_pieces
+
+from helpers.detection.detect_corners import detect_corners
+from helpers.detection.detect_pieces import detect_pieces
 
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
@@ -28,49 +28,6 @@ BOARD_POINTS = np.array([
     (0, N)
 ])
 
-def init_cap():
-    parser = argparse.ArgumentParser(description="argeparse_desc")
-    parser.add_argument("--webcam-resolution", default=[1280, 720], nargs=2, type=int)
-    args = parser.parse_args()
-    
-    frame_width, frame_height = args.webcam_resolution
-    
-    cap = cv2.VideoCapture(1)
-    
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
-    
-    return cap
-
-def detect_corners(corner_model, image):
-    result = corner_model.predict(image, conf=0.5, device=0)
-
-    corners = get_chessboard_corners(result[0], image)
-    
-    if corners is not None:
-        corners = sort_points_by_angle(corners)
-        
-        for i in range(len(corners)):
-            corner = tuple(corners[i])
-            cv2.circle(image, corner, 10, (0, 255, 0), -1)
-            cv2.putText(image, f"{i} : ({corner[0]}, {corner[1]})", corner, 1, 1, (255, 255, 255), 1)
-
-    return corners
-
-def detect_pieces(piece_model, image):
-    result = piece_model.predict(image, conf=0.5, device=0)
-    detections = sv.Detections.from_ultralytics(result[0])
-
-    piece_xy = detections.get_anchors_coordinates(sv.Position.BOTTOM_CENTER).astype(int)
-    piece_class = detections.data["class_name"]
-
-    for i in range(len(piece_xy)):
-        coods = piece_xy[i]
-        cv2.circle(image, coods, 5, (255,0,0), -1)
-        cv2.putText(image, f"{piece_class[i]}", coods, 0, 1, (0,0,0), 1)
-    
-    return piece_xy, piece_class
-
 def main():
     cap = init_cap()
     
@@ -83,8 +40,8 @@ def main():
         # ret, image = cap.read()
         image = cv2.imread(r"images\1.png")
         
-        corners = detect_corners(corner_model, image)
-        piece_xy, piece_class = detect_pieces(piece_model, image)
+        corners = detect_corners(corner_model, image, annotate=True)
+        piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
         
         if corners is None:
             cv2.imshow("Corners Not Detected", not_found)
@@ -97,8 +54,8 @@ def main():
             chess.rotate_anticlockwise()
             board = chess.chessboard()
             
-            annotate_corners(warped, N)
-            annotate_pieces(warped, warped_xy)
+            annotate_warped_corners(warped, N)
+            annotate_warped_pieces(warped, warped_xy)
             
             # cv2.imwrite("images\warped2.jpg", warped)
             # cv2.imwrite("images\board2.jpg", board)

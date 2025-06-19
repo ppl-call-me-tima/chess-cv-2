@@ -45,6 +45,7 @@ def get_binary_mask_from_ultralytics(results, original_image):
 
     return binary_mask
 
+
 def get_corners_from_binary_mask(binary_mask):
     """
     Finds the four extreme corners of the largest contour in a binary mask.
@@ -97,6 +98,7 @@ def get_corners_from_binary_mask(binary_mask):
     # corners = np.array([top_left, top_right, bottom_right, bottom_left], dtype="float32")
 
     return corners
+
 
 def get_corners(results, image):
     binary_mask = get_binary_mask_from_ultralytics(results, image)
