@@ -35,8 +35,8 @@ def main():
     corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
     piece_model = YOLO(r"runs_piece_detection\content\runs\detect\train\weights\best.pt")
 
+    started = False
     not_found = corners_not_detected()
-    corners_previously_existed = False
     position = Position()
 
     while True:
@@ -47,12 +47,18 @@ def main():
         piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
         
         if corners is None:
+            if not started:
+                corners_previously_existed = False
+            
             if corners_previously_existed:
                 corners_previously_existed = False
                 cv2.destroyAllWindows()
 
             cv2.imshow("no_corners", not_found)
         else:
+            if not started:
+                corners_previously_existed = True
+            
             if not corners_previously_existed:
                 cv2.destroyWindow("no_corners")
                 corners_previously_existed = True
@@ -71,7 +77,7 @@ def main():
                 if not position.is_valid():
                     cv2.putText(image, "Position is INVALID", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 
-                cv2.putText(image, "Correct position detected? (y/n): ", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+                cv2.putText(image, "Correct BOARD detected? (y/n): ", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
                 
                 cv2.imshow("image", image)
                 cv2.imshow("board", position.get_board())
@@ -107,6 +113,8 @@ def main():
             position.set_initial(False)
         elif key == 27:
             break
+            
+        started = True
 
 if __name__ == "__main__":
     main()
