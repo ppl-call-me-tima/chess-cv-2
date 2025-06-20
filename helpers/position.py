@@ -1,17 +1,21 @@
+import cv2
 import chess
+import chess.svg
+import cairosvg
+import io
+from PIL import Image
+import numpy as np
 
 class Position:
     def __init__(self):
+        self.chess = chess.Board()
         self.initial_set = False
-        self.current_FEN = None
         self.current_matrix = []
-        self.current_board = None
     
     def clear(self):
+        self.chess.clear_board()
         self.initial_set = False
-        self.current_FEN = None
         self.current_matrix = []
-        self.current_board = None
 
     def generate_matrix_with_fen(self, fen):
         current_matrix = []
@@ -40,8 +44,8 @@ class Position:
         return current_matrix
 
     def compare_and_get_uci(self, m2):
-        move_made_from = "00"
-        move_made_to = "00"
+        move_made_from = ""
+        move_made_to = ""
         changes = 0
         
         m1 = self.current_matrix
@@ -60,10 +64,9 @@ class Position:
         
         return move_made_from + move_made_to
                     
-    def set_fen_board(self, FEN, board):
-        self.current_FEN = FEN
-        self.current_matrix = self.generate_matrix_with_fen(self.current_FEN)
-        self.current_board = board
+    def set_fen(self, FEN):
+        self.chess.set_board_fen(FEN)
+        self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
         
     def is_initial_set(self):
         return self.initial_set
@@ -71,30 +74,39 @@ class Position:
     def set_initial(self, status):
         self.initial_set = status
 
-    def get_board(self):
-        return self.current_board
-
     def is_valid(self):      
-        return chess.Board.is_valid(chess.Board(self.current_FEN))
+        # return chess.Board.is_valid(chess.Board(self.current_FEN))
+        return self.chess.is_valid()
 
-    def is_next_position_valid(self, next_FEN, next_board):
-        "Evaluates whether the new receieved position is achievable from self.current_FEN, and sets as itself if True"
+    def is_next_position_valid(self, next_FEN):
+        "Evaluates whether the new receieved position is achievable from self.chess, and push move in stack if True"
         
         valid_position = chess.Board.is_valid(chess.Board(next_FEN))
         
         next_matrix = self.generate_matrix_with_fen(next_FEN)
         uci = self.compare_and_get_uci(next_matrix)
-        
-        try:
-            chess.Board(self.current_FEN).push_uci(uci)
-            achievable_from_current = True
-        except ValueError:
+                
+        if uci is None:
             achievable_from_current = False
+        elif uci == "":
+            achievable_from_current = True
+        else:
+            try:
+                self.chess.push_uci(uci)
+                achievable_from_current = True
+                self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
+            except ValueError:
+                achievable_from_current = False
 
         valid = valid_position and achievable_from_current
-
-        if valid:
-            self.current_FEN = next_FEN
-            self.current_board = next_board
         
         return valid
+
+    def get_board(self) -> np.ndarray:
+        chessboard = self.chess
+        svg_string = chess.svg.board(chessboard)
+        
+        png_data = cairosvg.svg2png(bytestring=svg_string)
+        img_pil = Image.open(io.BytesIO(png_data))
+        img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+        return img_np

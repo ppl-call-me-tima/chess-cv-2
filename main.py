@@ -70,8 +70,8 @@ def main():
             chess = Chessboard(warped_xy, piece_class, N)
             chess.rotate_anticlockwise()
             
-            if position.current_board is None:
-                position.set_fen_board(chess.FEN(), chess.chessboard())
+            if position.current_matrix == []:
+                position.set_fen(chess.FEN())
             
             if not position.is_initial_set():
                 if not position.is_valid():
@@ -97,14 +97,11 @@ def main():
                         
             annotate_warped_corners(warped, N)
             annotate_warped_pieces(warped, warped_xy)
-            
-            # cv2.imwrite("images\warped2.jpg", warped)
-            # cv2.imwrite("images\board2.jpg", board)
-            
+                        
             cv2.imshow("warped", warped)
             cv2.imshow("image", image)
             
-            if position.is_next_position_valid(chess.FEN(), chess.chessboard()):
+            if position.is_next_position_valid(chess.FEN()):
                 cv2.imshow("board", position.get_board())
         
         key = cv2.waitKey(20)
@@ -113,7 +110,7 @@ def main():
             position.set_initial(False)
         elif key == 27:
             break
-            
+                
         started = True
 
 if __name__ == "__main__":
