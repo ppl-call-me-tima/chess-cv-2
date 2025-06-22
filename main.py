@@ -17,6 +17,9 @@ from helpers.annotate.warped_pieces import annotate_warped_pieces
 from helpers.detection.detect_corners import detect_corners
 from helpers.detection.detect_pieces import detect_pieces
 
+from logger import log
+from lichess import play_move
+
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
 
@@ -38,6 +41,8 @@ def main():
     started = False
     not_found = corners_not_detected()
     position = Position()
+    play_on_lichess = False
+    lichess_colour = True  # white default
 
     while True:
         ret, image = cap.read()
@@ -98,17 +103,33 @@ def main():
             annotate_warped_corners(warped, N)
             annotate_warped_pieces(warped, warped_xy)
                         
-            cv2.imshow("warped", warped)
+            if not play_on_lichess:
+                cv2.putText(image, "Connect lichess: (L)", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            
+            cv2.imshow("warped", warped)           
             cv2.imshow("image", image)
             
-            if position.is_next_position_valid(chess.FEN()):
+            valid, new_move_pushed, turn = position.is_next_position_valid(chess.FEN())
+            print(turn, lichess_colour)
+            if valid and new_move_pushed:
+                log(new_move_pushed)
+            
+            if valid:
                 cv2.imshow("board", position.get_board())
+                
+                if play_on_lichess and turn == lichess_colour and new_move_pushed:
+                    play_move(new_move_pushed)
         
         key = cv2.waitKey(20)
         
         if key == ord("r"):
             position.set_initial(False)
+            play_on_lichess = False
+        elif key == ord("l"):
+            play_on_lichess = not play_on_lichess
+            lichess_colour = position.chess.turn
         elif key == 27:
+            log(position.chess.fen())
             break
                 
         started = True

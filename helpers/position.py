@@ -29,7 +29,7 @@ class Position:
             
             while j < len(fen[i]):
                 if not fen[i][j].isnumeric():
-                    row.append(fen[i][j].upper())
+                    row.append(fen[i][j])
                 else:
                     cnt = int(fen[i][j])
                     while j < 8 and cnt > 0:
@@ -43,24 +43,55 @@ class Position:
         
         return current_matrix
 
+    def get_uci(self, square):
+        i,j = square
+        return chr(ord("a") + j) + str(8 - i)
+
     def compare_and_get_uci(self, m2):
         move_made_from = ""
         move_made_to = ""
-        changes = 0
+        changed_squares = []
         
         m1 = self.current_matrix
         
         for i in range(8):
             for j in range(8):
-                if bool(m1[i][j]) ^ bool(m2[i][j]):
-                    if changes > 2:
-                        return None
-                    else:
-                        changes += 1
-                        if m1[i][j]:
-                            move_made_from = chr(ord("a") + j) + str(8 - i)
-                        elif m2[i][j]:
-                            move_made_to = chr(ord("a") + j) + str(8 - i)
+                if m1[i][j] != m2[i][j]:
+                    changed_squares.append((i,j))        
+
+        if len(changed_squares) == 0:
+            return ""
+        
+        if len(changed_squares) == 1:
+            return None
+
+        if len(changed_squares) > 2:
+            return None
+            # TODO: special moves - castling + en-passant
+        
+        s1, s2 = changed_squares
+        
+        # basic move
+        if (m1[s1[0]][s1[1]] == "") ^ (m1[s2[0]][s2[1]] == ""):
+            if m1[s1[0]][s1[1]]:
+                move_made_from = self.get_uci(s1)
+                move_made_to = self.get_uci(s2)
+            else:
+                move_made_from = self.get_uci(s2)
+                move_made_to = self.get_uci(s1)
+        
+        # capture
+        elif m1[s1[0]][s1[1]] and m1[s2[0]][s2[1]]:
+            if m2[s1[0]][s1[1]] == "" and m1[s1[0]][s1[1]] == m2[s2[0]][s2[1]]:
+                move_made_from = self.get_uci(s1)
+                move_made_to = self.get_uci(s2)
+            elif m2[s2[0]][s2[1]] == "" and m1[s2[0]][s2[1]] == m2[s1[0]][s1[1]]:
+                move_made_from = self.get_uci(s2)
+                move_made_to = self.get_uci(s1)
+        
+        # unrecognised move
+        else:
+            return None
         
         return move_made_from + move_made_to
                     
@@ -75,16 +106,17 @@ class Position:
         self.initial_set = status
 
     def is_valid(self):      
-        # return chess.Board.is_valid(chess.Board(self.current_FEN))
         return self.chess.is_valid()
 
     def is_next_position_valid(self, next_FEN):
         "Evaluates whether the new receieved position is achievable from self.chess, and push move in stack if True"
         
-        valid_position = chess.Board.is_valid(chess.Board(next_FEN))
+        # valid_position = chess.Board.is_valid(chess.Board(next_FEN))
         
         next_matrix = self.generate_matrix_with_fen(next_FEN)
         uci = self.compare_and_get_uci(next_matrix)
+        new_move_pushed = None
+        turn = self.chess.turn
                 
         if uci is None:
             achievable_from_current = False
@@ -93,14 +125,13 @@ class Position:
         else:
             try:
                 self.chess.push_uci(uci)
+                new_move_pushed = uci
                 achievable_from_current = True
                 self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
             except ValueError:
                 achievable_from_current = False
-
-        valid = valid_position and achievable_from_current
         
-        return valid
+        return achievable_from_current, new_move_pushed, turn
 
     def get_board(self) -> np.ndarray:
         chessboard = self.chess
