@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-load_dotenv(dotenv_path="dimensions.env")
+load_dotenv(dotenv_path="dimensions.env", override=True)
 
 from ultralytics import YOLO
 import cv2
@@ -36,7 +36,7 @@ def main():
     cap = init_cap()
     
     corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
-    piece_model = YOLO(r"runs_piece_detection\content\runs\detect\train\weights\best.pt")
+    piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
 
     started = False
     not_found = corners_not_detected()
@@ -110,7 +110,7 @@ def main():
             cv2.imshow("image", image)
             
             valid, new_move_pushed, turn = position.is_next_position_valid(chess.FEN())
-            print(turn, lichess_colour)
+
             if valid and new_move_pushed:
                 log(new_move_pushed)
             
@@ -126,6 +126,9 @@ def main():
             position.set_initial(False)
             play_on_lichess = False
         elif key == ord("l"):
+            if not play_on_lichess:
+                lichess_game_id = input("Enter Lichess Game ID: ")
+                os.environ["LICHESS_GAME_ID"] = lichess_game_id
             play_on_lichess = not play_on_lichess
             lichess_colour = position.chess.turn
         elif key == 27:
