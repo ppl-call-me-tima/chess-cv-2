@@ -96,7 +96,7 @@ class Position:
         return move_made_from + move_made_to
                     
     def set_fen(self, FEN):
-        self.chess.set_board_fen(FEN)
+        self.chess.set_fen(FEN)
         self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
         
     def is_initial_set(self):
