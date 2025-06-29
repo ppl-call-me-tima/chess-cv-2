@@ -50,6 +50,7 @@ class Position:
     def compare_and_get_uci(self, m2):
         move_made_from = ""
         move_made_to = ""
+        promoted_to = ""
         changed_squares = []
         
         m1 = self.current_matrix
@@ -71,8 +72,18 @@ class Position:
         
         s1, s2 = changed_squares
         
+        # checking for pawn promotion
+        if (m1[s1[0]][s1[1]] == "P" and s1[0] == 1 and s2[0] == 0) or (m1[s1[0]][s1[1]] == "p" and s1[0] == 6 and s2[0] == 7):
+            promoted_to = m2[s2[0]][s2[1]].lower()
+            move_made_from = self.get_uci(s1)
+            move_made_to = self.get_uci(s2)
+        elif (m1[s2[0]][s2[1]] == "P" and s2[0] == 1 and s1[0] == 0) or (m1[s2[0]][s2[1]] == "p" and s2[0] == 6 and s1[0] == 7):
+            promoted_to = m2[s1[0]][s1[1]].lower()
+            move_made_from = self.get_uci(s2)
+            move_made_to = self.get_uci(s1)
+        
         # basic move
-        if (m1[s1[0]][s1[1]] == "") ^ (m1[s2[0]][s2[1]] == ""):
+        elif (m1[s1[0]][s1[1]] == "") ^ (m1[s2[0]][s2[1]] == ""):
             if m1[s1[0]][s1[1]]:
                 move_made_from = self.get_uci(s1)
                 move_made_to = self.get_uci(s2)
@@ -82,10 +93,10 @@ class Position:
         
         # capture
         elif m1[s1[0]][s1[1]] and m1[s2[0]][s2[1]]:
-            if m2[s1[0]][s1[1]] == "" and m1[s1[0]][s1[1]] == m2[s2[0]][s2[1]]:
+            if m1[s1[0]][s1[1]] == m2[s2[0]][s2[1]] and m2[s1[0]][s1[1]] == "":
                 move_made_from = self.get_uci(s1)
                 move_made_to = self.get_uci(s2)
-            elif m2[s2[0]][s2[1]] == "" and m1[s2[0]][s2[1]] == m2[s1[0]][s1[1]]:
+            elif m1[s2[0]][s2[1]] == m2[s1[0]][s1[1]] and m2[s2[0]][s2[1]] == "":
                 move_made_from = self.get_uci(s2)
                 move_made_to = self.get_uci(s1)
         
@@ -93,7 +104,11 @@ class Position:
         else:
             return None
         
-        return move_made_from + move_made_to
+        # for touching pawn on last rank to not be detected
+        if promoted_to == "p":
+            return None
+        
+        return move_made_from + move_made_to + promoted_to
                     
     def set_fen(self, FEN):
         self.chess.set_fen(FEN)
@@ -117,7 +132,7 @@ class Position:
         uci = self.compare_and_get_uci(next_matrix)
         new_move_pushed = None
         turn = self.chess.turn
-                
+
         if uci is None:
             achievable_from_current = False
         elif uci == "":
