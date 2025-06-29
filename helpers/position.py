@@ -5,6 +5,7 @@ import cairosvg
 import io
 from PIL import Image
 import numpy as np
+from logger import log
 
 class Position:
     def __init__(self):
@@ -110,9 +111,10 @@ class Position:
         
         return move_made_from + move_made_to + promoted_to
                     
-    def set_fen(self, FEN):
+    def set_fen(self, FEN, castling_fen):
         self.chess.set_fen(FEN)
         self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
+        self.chess.set_castling_fen(castling_fen)
         
     def is_initial_set(self):
         return self.initial_set

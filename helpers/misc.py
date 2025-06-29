@@ -47,3 +47,18 @@ def init_cap():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
     
     return cap
+
+def get_castling_fen_from_menu():
+    K = input("Can white castle on king side? (y/n): ")
+    Q = input("Can white castle on queen side? (y/n): ")
+    k = input("Can black castle on king side? (y/n): ")
+    q = input("Can black castle on queen side? (y/n): ")
+    
+    castling_fen = ""
+    
+    if K.lower() == "y": castling_fen += "K"
+    if Q.lower() == "y": castling_fen += "Q"
+    if k.lower() == "y": castling_fen += "k"
+    if q.lower() == "y": castling_fen += "q"
+
+    return castling_fen

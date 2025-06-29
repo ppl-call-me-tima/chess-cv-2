@@ -49,6 +49,13 @@ def main():
         ret, image = cap.read()
         # image = cv2.imread(r"images\1.png")
         
+        if not started:
+            standard = input("Does the game start from standard positition? (y/n): ")
+            if standard.lower() == "y":
+                castling_fen = "KQkq"
+            else:
+                castling_fen = get_castling_fen_from_menu()
+
         corners = detect_corners(corner_model, image, annotate=True)
         piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
         
@@ -77,7 +84,7 @@ def main():
             chess.rotate_anticlockwise()
             
             if position.current_matrix == []:
-                position.set_fen(chess.FEN())
+                position.set_fen(chess.FEN(), castling_fen)
             
             if not position.is_initial_set():
                 if not position.is_valid():
