@@ -2,6 +2,7 @@
 __pycache__
 images/
 runs_piece_detection/
+runs_piece_detection_improved1/
 runs_corner_detection/
 test.py
 test2.py
@@ -9,4 +10,4 @@ test2.py
 next.txt
 logs.txt
 notes.txt
-runs_piece_detection_improved1/
+testing/

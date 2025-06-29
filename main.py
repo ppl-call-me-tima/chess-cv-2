@@ -5,6 +5,7 @@ load_dotenv(dotenv_path="dimensions.env", override=True)
 from ultralytics import YOLO
 import cv2
 import numpy as np
+import winsound
 
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
@@ -117,9 +118,12 @@ def main():
             if valid:
                 cv2.imshow("board", position.get_board())
                 
-                if play_on_lichess and turn == lichess_colour and new_move_pushed:
-                    play_move(new_move_pushed)
-        
+                if play_on_lichess and new_move_pushed:
+                    if turn == lichess_colour:
+                        play_move(new_move_pushed)
+                    else:
+                        winsound.Beep(2500, 100)
+
         key = cv2.waitKey(20)
         
         if key == ord("r"):
