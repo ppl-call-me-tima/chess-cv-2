@@ -41,8 +41,10 @@ def main():
 
     started = False
     not_found = corners_not_detected()
+    
     position = Position()
     play_on_lichess = False
+    engine_on = False
     lichess_colour = True  # white default
 
     while True:
@@ -114,6 +116,11 @@ def main():
             if not play_on_lichess:
                 cv2.putText(image, "Connect lichess: (L)", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
             
+            if not engine_on:
+                cv2.putText(image, "Get engine analysis: (E)", (10,90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            else:
+                cv2.putText(image, position.get_engine_score(), (10,90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            
             # cv2.imshow("warped", warped)
             cv2.imshow("image", image)
             
@@ -142,8 +149,13 @@ def main():
                 os.environ["LICHESS_GAME_ID"] = lichess_game_id
             play_on_lichess = not play_on_lichess
             lichess_colour = position.chess.turn
+        elif key == ord("e"):
+            # TODO: possible engine turn-on-off handling here
+
+            engine_on = not engine_on
         elif key == 27:
             log(position.chess.fen())
+            position.engine.quit()
             break
                 
         started = True

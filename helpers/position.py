@@ -1,10 +1,14 @@
 import cv2
+
 import chess
+import chess.engine
+
 import chess.svg
 import cairosvg
 import io
 from PIL import Image
 import numpy as np
+
 from logger import log
 
 class Position:
@@ -12,6 +16,7 @@ class Position:
         self.chess = chess.Board()
         self.initial_set = False
         self.current_matrix = []
+        self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
     
     def clear(self):
         self.chess.clear_board()
@@ -158,3 +163,7 @@ class Position:
         img_pil = Image.open(io.BytesIO(png_data))
         img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
         return img_np
+
+    def get_engine_score(self):
+        info = self.engine.analyse(self.chess, chess.engine.Limit(time=0.1))
+        return info["score"].white().__str__()
