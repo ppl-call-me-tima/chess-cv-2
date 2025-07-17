@@ -74,11 +74,11 @@ class Position:
         s1, s2 = changed_squares
         
         # checking for pawn promotion
-        if (m1[s1[0]][s1[1]] == "P" and s1[0] == 1 and s2[0] == 0) or (m1[s1[0]][s1[1]] == "p" and s1[0] == 6 and s2[0] == 7):
+        if (m1[s1[0]][s1[1]] == "P" and s1[0] == 1 and s2[0] == 0 and m2[s2[0]][s2[1]] != "") or (m1[s1[0]][s1[1]] == "p" and s1[0] == 6 and s2[0] == 7 and m2[s2[0]][s2[1]] != ""):
             promoted_to = m2[s2[0]][s2[1]].lower()
             move_made_from = self.get_uci(s1)
             move_made_to = self.get_uci(s2)
-        elif (m1[s2[0]][s2[1]] == "P" and s2[0] == 1 and s1[0] == 0) or (m1[s2[0]][s2[1]] == "p" and s2[0] == 6 and s1[0] == 7):
+        elif (m1[s2[0]][s2[1]] == "P" and s2[0] == 1 and s1[0] == 0 and m2[s1[0]][s1[1]] != "") or (m1[s2[0]][s2[1]] == "p" and s2[0] == 6 and s1[0] == 7 and m2[s1[0]][s1[1]] != ""):
             promoted_to = m2[s1[0]][s1[1]].lower()
             move_made_from = self.get_uci(s2)
             move_made_to = self.get_uci(s1)
@@ -122,7 +122,7 @@ class Position:
     def set_initial(self, status):
         self.initial_set = status
 
-    def is_valid(self):      
+    def is_valid(self):
         return self.chess.is_valid()
 
     def is_next_position_valid(self, next_FEN):
