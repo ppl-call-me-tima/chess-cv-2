@@ -3,16 +3,17 @@ import chess
 import chess.engine
 import random
 
-async def engine_analysis(engine, board):
+async def engine_analysis(engine: chess.engine.UciProtocol, board: chess.Board):
     with await engine.analysis(board) as analysis:
         async for info in analysis:
             score = info.get("score")
             seldepth = info.get("seldepth", 0)
+            is_mate = score.is_mate() if score else None
 
             if score:
                 print(score.white())
 
-            if (score and score.is_mate()) or seldepth > 60:
+            if is_mate or seldepth > 60:
                 break
 
 async def main():
@@ -27,7 +28,7 @@ async def main():
         # player thinking
         await asyncio.sleep(random.randint(1, 5))
         
-        print(f"\nPlayer made move #{i + 1}")
+        print(f"\nHalf move was made #{i + 1}: {moves[i]}")
         board.push_uci(moves[i])
 
         if engine_task and not engine_task.done():
@@ -36,7 +37,10 @@ async def main():
         
         engine_task = asyncio.create_task(engine_analysis(engine, board))
     
-    # for last exectution, when the main coroutine finished its stuff and only the engine_task is left to complete
+    # during the last move analysis, when the main coroutine finished its stuff and only the engine_task is left to complete,
+    # since asyncio.run(main()) only cares about the main co-routine's execution, it starts killing all main's generated
+    # tasks as well. we need to await it manually after main is fully executed
+    
     if engine_task and not engine_task.done():
         try:
             await engine_task
