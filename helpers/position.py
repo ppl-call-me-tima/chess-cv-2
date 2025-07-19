@@ -147,6 +147,11 @@ class Position:
         else:
             try:
                 self.chess.push_uci(uci)
+                # get fen from updated chess.board
+                # cancel any pre-existing task + call the add_analysis_task(fen)
+                # [but to call that async-ly, have to run the whole thing on an async event loop]
+                # the add_analysis_task should run the streaming thing perhaps -> which will built the eval-bar from some other python library
+                
                 new_move_pushed = uci
                 achievable_from_current = True
                 self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
