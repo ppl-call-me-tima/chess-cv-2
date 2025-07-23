@@ -1,4 +1,5 @@
 import cv2
+import asyncio
 
 import chess
 import chess.engine
@@ -9,8 +10,6 @@ import io
 from PIL import Image
 import numpy as np
 
-import asyncio
-
 from logger import log
 from helpers.engine_analysis.engine_analysis import engine_analysis
 
@@ -19,8 +18,14 @@ class Position:
         self.chess = chess.Board()
         self.initial_set = False
         self.current_matrix = []
-        self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
-        # self.engine_task: asyncio.Task = None
+        self.engine = None
+        self.engine_task: asyncio.Task = None
+
+    @classmethod
+    async def create(cls):
+        position_instance = cls()
+        transport, position_instance.engine = await chess.engine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        return position_instance
 
     def clear(self):
         self.chess.clear_board()
@@ -135,10 +140,6 @@ class Position:
         return self.chess.is_valid()
 
     def is_next_position_valid(self, next_FEN):
-        "Evaluates whether the new receieved position is achievable from self.chess, and push move in stack if True"
-        
-        # valid_position = chess.Board.is_valid(chess.Board(next_FEN))
-        
         next_matrix = self.generate_matrix_with_fen(next_FEN)
         uci = self.compare_and_get_uci(next_matrix)
         new_move_pushed = None
@@ -151,18 +152,13 @@ class Position:
         else:
             try:
                 self.chess.push_uci(uci)
-                # get fen from updated chess.board
-                # cancel any pre-existing task + call the add_analysis_task(fen)
-                # [but to call that async-ly, have to run the whole thing on an async event loop]
-                # the add_analysis_task should run the streaming thing perhaps -> which will built the eval-bar from some other python library
+                
                 # log(f"Half move made: {uci}")
-                
-                # if self.engine_task and not self.engine_task.done():
-                #     log("---ABORT ENGINE TASK ---")
-                #     self.engine_task.cancel()
-                
-                # self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
-                
+                if self.engine_task and not self.engine_task.done():
+                    self.engine_task.cancel()
+
+                self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
+
                 new_move_pushed = uci
                 achievable_from_current = True
                 self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
@@ -180,6 +176,5 @@ class Position:
         img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
         return img_np
 
-    def get_engine_score(self):
-        info = self.engine.analyse(self.chess, chess.engine.Limit(time=0.1))
-        return info["score"].white().__str__()
+    async def quit(self):
+        await self.engine.quit()
