@@ -6,6 +6,11 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 import winsound
+import pygame
+import asyncio
+
+import chess
+import chess.engine
 
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
@@ -17,6 +22,11 @@ from helpers.annotate.warped_pieces import annotate_warped_pieces
 
 from helpers.detection.detect_corners import detect_corners
 from helpers.detection.detect_pieces import detect_pieces
+
+from helpers.engine_analysis.eval_bar import draw_eval_bar
+from helpers.engine_analysis.engine_analysis import engine_analysis
+from helpers.engine_analysis.shared_resource import shared_resource
+from helpers.engine_analysis.constants import *
 
 from logger import log
 from lichess import play_move
@@ -33,11 +43,23 @@ BOARD_POINTS = np.array([
     (0, N)
 ])
 
-def main():
+def process_frame_sync(image, corner_model, piece_model):
+    """
+    This function contains all the synchronous, blocking code.
+    It returns the results needed by the main async loop.
+    """
+    corners = detect_corners(corner_model, image, annotate=True)
+    piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
+    
+    # You might need to return more data depending on your logic
+    return image, corners, piece_xy, piece_class
+
+async def main():
     cap = init_cap()
     
     corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
     piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
+    loop = asyncio.get_running_loop()
 
     started = False
     not_found = corners_not_detected()
@@ -47,7 +69,12 @@ def main():
     engine_on = False
     lichess_colour = True  # white default
 
-    while True:
+    running = True
+    
+    transport, engine = await chess.engine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+    engine_task: asyncio.Task = None
+
+    while running:
         ret, image = cap.read()
         # image = cv2.imread(r"images\1.png")
         
@@ -57,9 +84,21 @@ def main():
                 castling_fen = "KQkq"
             else:
                 castling_fen = get_castling_fen_from_menu()
+            
+            pygame.init()
+            screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+            pygame.display.set_caption("Async Chess Eval")
 
-        corners = detect_corners(corner_model, image, annotate=True)
-        piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
+        # corners = detect_corners(corner_model, image, annotate=True)
+        # piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
+        
+        image, corners, piece_xy, piece_class = await loop.run_in_executor(
+            None, 
+            process_frame_sync, 
+            image, 
+            corner_model, 
+            piece_model
+        )
         
         if corners is None:
             if not started:
@@ -82,11 +121,11 @@ def main():
             warped_xy = transformer.transform_points(piece_xy)
             warped = transformer.warp_image(image, N)
             
-            chess = Chessboard(warped_xy, piece_class, N)
-            chess.rotate_anticlockwise()
+            current_chess = Chessboard(warped_xy, piece_class, N)
+            current_chess.rotate_anticlockwise()
             
             if position.current_matrix == []:
-                position.set_fen(chess.FEN(), castling_fen)
+                position.set_fen(current_chess.FEN(), castling_fen)
             
             if not position.is_initial_set():
                 if not position.is_valid():
@@ -124,10 +163,19 @@ def main():
             # cv2.imshow("warped", warped)
             cv2.imshow("image", image)
             
-            valid, new_move_pushed, turn = position.is_next_position_valid(chess.FEN())
+            # draw pygame eval bar
+            
+            valid, new_move_pushed, turn = position.is_next_position_valid(current_chess.FEN())
 
             if valid and new_move_pushed:
-                log(new_move_pushed)
+                log(f"Half move made: {new_move_pushed}")
+
+                if engine_task and not engine_task.done():
+                    log("---ABORT ENGINE TASK ---")
+                    engine_task.cancel()
+                
+                engine_task = asyncio.create_task(engine_analysis(engine, position.chess))
+                log(engine_task.__str__())
             
             if valid:
                 cv2.imshow("board", position.get_board())
@@ -138,7 +186,7 @@ def main():
                     else:
                         winsound.Beep(2500, 100)
 
-        key = cv2.waitKey(20)
+        key = cv2.waitKey(1)
         
         if key == ord("r"):
             position.set_initial(False)
@@ -151,14 +199,18 @@ def main():
             lichess_colour = position.chess.turn
         elif key == ord("e"):
             # TODO: possible engine turn-on-off handling here
-
             engine_on = not engine_on
         elif key == 27:
             log(position.chess.fen())
-            position.engine.quit()
             break
-                
-        started = True
 
-if __name__ == "__main__":
-    main()
+        if started:
+            draw_eval_bar(screen, shared_resource["score"], shared_resource["is_mate"], shared_resource["winning"])
+            pygame.display.flip()
+
+        await asyncio.sleep(1/60)
+        started = True
+    
+    await engine.quit()
+
+asyncio.run(main())

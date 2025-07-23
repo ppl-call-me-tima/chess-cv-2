@@ -9,7 +9,10 @@ import io
 from PIL import Image
 import numpy as np
 
+import asyncio
+
 from logger import log
+from helpers.engine_analysis.engine_analysis import engine_analysis
 
 class Position:
     def __init__(self):
@@ -17,7 +20,8 @@ class Position:
         self.initial_set = False
         self.current_matrix = []
         self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
-    
+        # self.engine_task: asyncio.Task = None
+
     def clear(self):
         self.chess.clear_board()
         self.initial_set = False
@@ -115,12 +119,12 @@ class Position:
             return None
         
         return move_made_from + move_made_to + promoted_to
-                    
+                
     def set_fen(self, FEN, castling_fen):
         self.chess.set_fen(FEN)
         self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
         self.chess.set_castling_fen(castling_fen)
-        
+
     def is_initial_set(self):
         return self.initial_set
 
@@ -151,6 +155,13 @@ class Position:
                 # cancel any pre-existing task + call the add_analysis_task(fen)
                 # [but to call that async-ly, have to run the whole thing on an async event loop]
                 # the add_analysis_task should run the streaming thing perhaps -> which will built the eval-bar from some other python library
+                # log(f"Half move made: {uci}")
+                
+                # if self.engine_task and not self.engine_task.done():
+                #     log("---ABORT ENGINE TASK ---")
+                #     self.engine_task.cancel()
+                
+                # self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
                 
                 new_move_pushed = uci
                 achievable_from_current = True
