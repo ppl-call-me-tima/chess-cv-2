@@ -25,7 +25,7 @@ from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.constants import *
 
 from logger import log
-from lichess import play_move
+from lichess import make_move
 
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
@@ -150,7 +150,7 @@ async def main():
                 
                 if play_on_lichess and new_move_pushed:
                     if turn == lichess_colour:
-                        play_move(new_move_pushed)
+                        await make_move(new_move_pushed)
                     else:
                         winsound.Beep(2500, 100)
 

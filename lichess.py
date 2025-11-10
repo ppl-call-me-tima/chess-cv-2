@@ -11,12 +11,9 @@ headers = {
     "Authorization": f"Bearer {LICHESS_TOKEN}",
 }
 
-async def api_call(uci):
+async def make_move(uci):
     async with httpx.AsyncClient() as client:
         gameId = os.getenv("LICHESS_GAME_ID")
         url = f"https://lichess.org/api/board/game/{gameId}/move/{uci}"
         response = await client.post(url=url, headers=headers)
         print(response.json())
-
-def play_move(uci):
-    asyncio.run(api_call(uci))
