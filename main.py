@@ -25,7 +25,7 @@ from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.constants import *
 
 from logger import log
-from lichess import make_move
+from lichess import make_move, set_credentials
 
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
@@ -161,8 +161,7 @@ async def main():
             play_on_lichess = False
         elif key == ord("l"):
             if not play_on_lichess:
-                lichess_game_id = input("Enter Lichess Game ID: ")
-                os.environ["LICHESS_GAME_ID"] = lichess_game_id
+                await set_credentials()
             play_on_lichess = not play_on_lichess
             lichess_colour = position.chess.turn
         elif key == ord("e"):
