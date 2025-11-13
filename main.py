@@ -133,17 +133,10 @@ async def main():
             if not play_on_lichess:
                 cv2.putText(image, "Connect lichess: (L)", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
             
-            # if not engine_on:
-            #     cv2.putText(image, "Get engine analysis: (E)", (10,90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
-
             # cv2.imshow("warped", warped)
             cv2.imshow("image", image)
             
             valid, new_move_pushed, turn = position.is_next_position_valid(current_chess.FEN())
-
-            if valid and new_move_pushed:
-                # to do any stuff thru the main-loop: IFF a new valid move was made on the board
-                pass
             
             if valid:
                 cv2.imshow("board", position.get_board())

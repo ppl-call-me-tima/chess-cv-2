@@ -11,8 +11,6 @@ async def engine_analysis(engine: chess.engine.UciProtocol, board: chess.Board):
             is_mate = score.is_mate() if score else None
 
             if score:
-                log(score.white().__str__())
-                
                 if score.is_mate():
                     shared_resource["is_mate"] = True
                     shared_resource["score"] = score.white().mate()

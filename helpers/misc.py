@@ -41,7 +41,7 @@ def init_cap():
     
     frame_width, frame_height = args.webcam_resolution
     
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
