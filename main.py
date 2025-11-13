@@ -156,6 +156,9 @@ async def main():
         elif key == ord("e"):
             # TODO: possible engine turn-on-off handling here
             engine_on = not engine_on
+        elif key == 8:
+            position.undo_move()
+            cv2.imshow("board", position.get_board())
         elif key == 27:
             log(position.chess.fen())
             break

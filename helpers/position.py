@@ -167,6 +167,13 @@ class Position:
         
         return achievable_from_current, new_move_pushed, turn
 
+    def undo_move(self):
+        try:
+            self.chess.pop()
+            self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
+        except IndexError:
+            log("Exception: No moves left to undo.")
+
     def get_board(self) -> np.ndarray:
         chessboard = self.chess
         svg_string = chess.svg.board(chessboard)
