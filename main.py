@@ -75,25 +75,20 @@ async def main():
             pygame.init()
             screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
             pygame.display.set_caption("Async Chess Eval")
+
+            started = True
         
         corners, piece_xy, piece_class = detection_results(image, corner_model, piece_model)
         
         if corners is None:
-            if not started:
-                corners_previously_existed = False
-            
-            if corners_previously_existed:
-                corners_previously_existed = False
+            # no-corner frame after valid frame
+            if cv2.getWindowProperty("no_corners", cv2.WND_PROP_VISIBLE) == 0:
                 cv2.destroyAllWindows()
-
-            cv2.imshow("no_corners", not_found)
+                cv2.imshow("no_corners", not_found)
         else:
-            if not started:
-                corners_previously_existed = True
-            
-            if not corners_previously_existed:
+            # valid frame after no-corner frame
+            if cv2.getWindowProperty("no_corners", cv2.WND_PROP_VISIBLE) > 0:
                 cv2.destroyWindow("no_corners")
-                corners_previously_existed = True
             
             transformer = PerspectiveTransformer(corners, BOARD_POINTS)
             warped_xy = transformer.transform_points(piece_xy)
@@ -152,6 +147,7 @@ async def main():
         if key == ord("r"):
             position.set_initial(False)
             play_on_lichess = False
+            started = False
         elif key == ord("l"):
             if not play_on_lichess:
                 await set_credentials()
@@ -169,7 +165,6 @@ async def main():
             pygame.display.flip()
 
         await asyncio.sleep(1/60)
-        started = True
     
     await position.quit()
 
