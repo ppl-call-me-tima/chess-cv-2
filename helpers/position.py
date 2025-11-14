@@ -18,6 +18,7 @@ class Position:
         self.chess = chess.Board()
         self.initial_set = False
         self.current_matrix = []
+        self.engine_on = False
         self.engine = None
         self.engine_task: asyncio.Task = None
 
@@ -154,10 +155,12 @@ class Position:
                 self.chess.push_uci(uci)
                 
                 # log(f"Half move made: {uci}")
-                if self.engine_task and not self.engine_task.done():
-                    self.engine_task.cancel()
 
-                self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
+                if self.engine_on:
+                    if not self.engine_task.done():
+                        self.engine_task.cancel()
+
+                    self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
 
                 new_move_pushed = uci
                 achievable_from_current = True
@@ -166,6 +169,15 @@ class Position:
                 achievable_from_current = False
         
         return achievable_from_current, new_move_pushed, turn
+
+    def toggle_engine(self):
+        if not self.engine_on:
+            self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
+        else:
+            if not self.engine_task.done():
+                self.engine_task.cancel()
+
+        self.engine_on = not self.engine_on
 
     def undo_move(self):
         try:

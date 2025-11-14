@@ -47,16 +47,16 @@ def detection_results(image, corner_model, piece_model):
 
 async def main():
     cap = init_cap()
-    
+
     corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
     piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
 
+    position = await Position().create()
+
     started = False
     not_found = corners_not_detected()
-    
-    position = await Position().create()
+
     play_on_lichess = False
-    engine_on = False
     lichess_colour = True  # white default
 
     running = True
@@ -71,10 +71,6 @@ async def main():
                 castling_fen = "KQkq"
             else:
                 castling_fen = get_castling_fen_from_menu()
-            
-            pygame.init()
-            screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-            pygame.display.set_caption("Async Chess Eval")
 
             started = True
         
@@ -154,8 +150,14 @@ async def main():
             play_on_lichess = not play_on_lichess
             lichess_colour = position.chess.turn
         elif key == ord("e"):
-            # TODO: possible engine turn-on-off handling here
-            engine_on = not engine_on
+            if position.engine_on:
+                pygame.quit()
+            else:
+                pygame.init()
+                screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+                pygame.display.set_caption("Async Chess Eval")
+            
+            position.toggle_engine()
         elif key == 8:
             position.undo_move()
             cv2.imshow("board", position.get_board())
@@ -163,7 +165,7 @@ async def main():
             log(position.chess.fen())
             break
 
-        if started:
+        if position.engine_on:
             draw_eval_bar(screen, shared_resource["score"], shared_resource["is_mate"], shared_resource["winning"])
             pygame.display.flip()
 
