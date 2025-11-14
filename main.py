@@ -138,7 +138,7 @@ async def main():
                 
                 if play_on_lichess and new_move_pushed:
                     if turn == lichess_colour:
-                        await make_move(new_move_pushed)
+                        make_move(new_move_pushed)
                     else:
                         winsound.Beep(2500, 100)
 
