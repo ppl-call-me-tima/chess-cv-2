@@ -28,6 +28,8 @@ from logger import log
 from lichess import make_move, set_credentials
 
 from screen_manager import ScreenManager
+from ui.screens.base_screen import BaseScreen
+from ui.screens.menu_screen import MenuScreen
 
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
@@ -56,6 +58,7 @@ async def main():
     pygame.display.set_caption("ChessCV")
 
     screen_manager = ScreenManager(screen)
+    screen_manager.add_screen("menu", MenuScreen(screen_manager))
 
     cap = init_cap()
 
@@ -70,12 +73,20 @@ async def main():
     play_on_lichess = False
     lichess_colour = True  # white default
 
+    screen_manager.set_screen("menu")
+
     running = True
     while running:
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
+            screen_manager.handle_event(event)
+        
+        screen.fill((30, 30, 30))
+        screen_manager.draw(screen)
+
+        pygame.display.flip()
 
         ret, image = cap.read()
         # image = cv2.imread(r"images\1.png")
@@ -91,8 +102,12 @@ async def main():
         castling_fen = "KQkq"
         # TODO: remove
 
-        corners, piece_xy, piece_class = detection_results(image, corner_model, piece_model)
-        
+        # corners, piece_xy, piece_class = detection_results(image, corner_model, piece_model)
+        corners = None
+        piece_xy = None
+        piece_class = None
+        # TODO: remove
+
         if corners is None:
             # no-corner frame after valid frame
             # if cv2.getWindowProperty("no_corners", cv2.WND_PROP_VISIBLE) == 0:
