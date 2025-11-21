@@ -28,8 +28,8 @@ from logger import log
 from lichess import make_move, set_credentials
 
 from screen_manager import ScreenManager
-from ui.screens.base_screen import BaseScreen
 from ui.screens.menu_screen import MenuScreen
+from ui.screens.detect_screen import DetectScreen
 
 BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
 BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
@@ -59,6 +59,7 @@ async def main():
 
     screen_manager = ScreenManager(screen)
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
+    screen_manager.add_screen("detect", DetectScreen(screen_manager))
 
     cap = init_cap()
 
@@ -83,6 +84,7 @@ async def main():
                 running = False
             screen_manager.handle_event(event)
         
+        screen_manager.update(1)
         screen.fill((30, 30, 30))
         screen_manager.draw(screen)
 
@@ -199,9 +201,9 @@ async def main():
         #     log(position.chess.fen())
         #     break
 
-        if position.engine_on:
-            draw_eval_bar(screen, shared_resource["score"], shared_resource["is_mate"], shared_resource["winning"])
-            pygame.display.flip()
+        # if position.engine_on:
+        #     draw_eval_bar(screen, shared_resource["score"], shared_resource["is_mate"], shared_resource["winning"])
+        #     pygame.display.flip()
 
         # await asyncio.sleep(1/60)
     

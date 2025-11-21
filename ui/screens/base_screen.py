@@ -5,9 +5,10 @@ class BaseScreen:
     def on_enter(self):
         pass
 
-    def handle_events(self, event):
+    def handle_event(self, event):
         pass
 
+    # TODO: what is this time delta anyway??
     def update(self, time_delta):
         pass
 
