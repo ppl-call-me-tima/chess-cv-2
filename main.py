@@ -203,7 +203,7 @@ async def main():
 
         # await asyncio.sleep(1/60)
     
-    await position.quit()
+    # await position.quit()
 
 if __name__ == "__main__":
     asyncio.run(main())
