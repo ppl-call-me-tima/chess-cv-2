@@ -9,6 +9,8 @@ import winsound
 import pygame
 import asyncio
 
+from constants import WINDOW_WIDTH, WINDOW_HEIGHT
+
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
 from helpers.position import Position
@@ -31,26 +33,26 @@ from screen_manager import ScreenManager
 from ui.screens.menu_screen import MenuScreen
 from ui.screens.detect_screen import DetectScreen
 
-BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
-BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
+# BOARD_PADDING = int(os.environ.get("BOARD_PADDING"))
+# BOARD_DIMENSION = int(os.environ.get("BOARD_DIMENSION"))
 
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
+# WINDOW_WIDTH = 1280
+# WINDOW_HEIGHT = 720
 
-N = BOARD_DIMENSION + 2 * BOARD_PADDING
+# N = BOARD_DIMENSION + 2 * BOARD_PADDING
 
-BOARD_POINTS = np.array([
-    (0, 0),
-    (N, 0),
-    (N, N),
-    (0, N)
-])
+# BOARD_POINTS = np.array([
+#     (0, 0),
+#     (N, 0),
+#     (N, N),
+#     (0, N)
+# ])
 
-def detection_results(image, corner_model, piece_model):
-    corners = detect_corners(corner_model, image, annotate=True)
-    piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
+# def detection_results(image, corner_model, piece_model):
+#     corners = detect_corners(corner_model, image, annotate=True)
+#     piece_xy, piece_class = detect_pieces(piece_model, image, annotate=True)
     
-    return corners, piece_xy, piece_class
+#     return corners, piece_xy, piece_class
 
 async def main():
     pygame.init()
@@ -61,18 +63,13 @@ async def main():
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
     screen_manager.add_screen("detect", DetectScreen(screen_manager))
 
-    cap = init_cap()
+    # position = await Position().create()
 
-    corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
-    piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
+    # started = False
+    # not_found = corners_not_detected()
 
-    position = await Position().create()
-
-    started = False
-    not_found = corners_not_detected()
-
-    play_on_lichess = False
-    lichess_colour = True  # white default
+    # play_on_lichess = False
+    # lichess_colour = True  # white default
 
     screen_manager.set_screen("menu")
 
@@ -90,9 +87,8 @@ async def main():
 
         pygame.display.flip()
 
-        ret, image = cap.read()
-        # image = cv2.imread(r"images\1.png")
-        
+        continue
+
         # if not started:
         #     standard = input("Does the game start from standard positition? (y/n): ")
         #     if standard.lower() == "y":

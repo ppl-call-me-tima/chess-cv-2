@@ -188,7 +188,7 @@ class Position:
 
     def get_board(self) -> np.ndarray:
         chessboard = self.chess
-        svg_string = chess.svg.board(chessboard)
+        svg_string = chess.svg.board(chessboard, size=300)
         
         png_data = cairosvg.svg2png(bytestring=svg_string)
         img_pil = Image.open(io.BytesIO(png_data))

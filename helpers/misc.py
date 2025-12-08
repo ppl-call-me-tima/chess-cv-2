@@ -62,3 +62,9 @@ def get_castling_fen_from_menu():
     if q.lower() == "y": castling_fen += "q"
 
     return castling_fen
+
+def cv2pygame(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = cv2.transpose(image)
+    # image = cv2.flip(image, 0)
+    return image
