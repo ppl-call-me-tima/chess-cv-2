@@ -81,7 +81,7 @@ async def main():
                 running = False
             screen_manager.handle_event(event)
         
-        screen_manager.update(1)
+        screen_manager.update()
         screen.fill((30, 30, 30))
         screen_manager.draw(screen)
 

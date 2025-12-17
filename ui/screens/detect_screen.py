@@ -14,9 +14,7 @@ class DetectScreen(BaseScreen):
         self.feed_surf = None
         self.feed_rect = pygame.Rect(320, 10, 850, 700)
     
-    def update(self, time_delta):
-        # using detection manager: a sole function makes inference, and set respective thingies: the svg board; and the bigger board, chessboard
-        # that inference function can have its own states such as warped_xy, chessboard, etc. from the original main() vaarisbles
+    def update(self):
         self.detection_manager.make_detection()
         
         svg_board = cv2pygame(self.detection_manager.get_board())

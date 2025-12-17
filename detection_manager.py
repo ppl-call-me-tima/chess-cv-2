@@ -42,7 +42,7 @@ class DetectionManger:
             if not self.position.is_initial_set():
                 self.position.set_fen(current_chess.FEN(), "KQkq")
 
-        print("fen:", self.position.chess.fen())
+        # print("fen:", self.position.chess.fen())
 
     def get_board(self):
         return self.position.get_board()

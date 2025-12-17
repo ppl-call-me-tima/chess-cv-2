@@ -8,8 +8,7 @@ class BaseScreen:
     def handle_event(self, event):
         pass
 
-    # TODO: what is this time delta anyway??
-    def update(self, time_delta):
+    def update(self):
         pass
 
     def draw(self, surface):
