@@ -40,7 +40,9 @@ class DetectionManger:
             current_chess.rotate_anticlockwise()
 
             if not self.position.is_initial_set():
+                #TODO: fix hard-code castling rights
                 self.position.set_fen(current_chess.FEN(), "KQkq")
+            
 
         # print("fen:", self.position.chess.fen())
 
@@ -52,3 +54,6 @@ class DetectionManger:
 
     def set_position_initial_state(self, status: bool):
         self.position.set_initial(status)
+
+    def is_position_initial_set(self):
+        return self.position.is_initial_set()

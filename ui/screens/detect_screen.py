@@ -35,10 +35,17 @@ class DetectScreen(BaseScreen):
                             self.manager.set_screen("menu")
                         elif btn["action"] == "set_position_state":
                             self.detection_manager.set_position_initial_state(True)
+                        elif btn["action"] == "reset_position_state":
+                            self.detection_manager.set_position_initial_state(False)
 
     def update(self):
         self.detection_manager.make_detection()
-        
+
+        if self.detection_manager.is_position_initial_set():
+            self.buttons[1] = {"img": "cross.png", "action": "reset_position_state", "rect": pygame.Rect(70, 10, 50, 50)}
+        else:
+            self.buttons[1] = {"img": "tick.png", "action": "set_position_state", "rect": pygame.Rect(70, 10, 50, 50)}
+
         svg_board = cv2pygame(self.detection_manager.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
 
