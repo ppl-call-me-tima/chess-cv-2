@@ -22,7 +22,7 @@ class DetectionManger:
 
     def make_detection(self):
         """
-        Simply perform detection for the particular frame and update the class variables
+        Perform detection for the particular frame and update the class variables
         that might be required for making detections along the way or externally at detect_screen.py
         """
 
@@ -49,3 +49,6 @@ class DetectionManger:
 
     def get_feed(self):
         return self.image
+
+    def set_position_initial_state(self, status: bool):
+        self.position.set_initial(status)

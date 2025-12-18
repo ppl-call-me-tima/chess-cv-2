@@ -134,7 +134,16 @@ class Position:
     def is_initial_set(self):
         return self.initial_set
 
-    def set_initial(self, status):
+    def set_initial(self, status: bool):
+        """
+        Set True or False, to lock the continuous change in position. Once True, 
+        then position can only be changed via `is_next_position_valid(self, next_FEN)`.
+        
+        NOTE: it is used only as in implementation indicator flag in main to check
+        whether to directly manipulate self.position.fen or do it by trying to add moves onto the move-stack.
+        
+        :param status: indicator of starting position has been finalized or not
+        """
         self.initial_set = status
 
     def is_valid(self):
