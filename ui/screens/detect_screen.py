@@ -25,7 +25,7 @@ class DetectScreen(BaseScreen):
         self.feed_surf = None
 
     def on_enter(self):
-        self.detection_manager.set_position_initial_state(False)
+        self.detection_manager.position.set_initial(False)
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -36,7 +36,7 @@ class DetectScreen(BaseScreen):
                         if btn["action"] == "back":
                             self.manager.set_screen("menu")
                         elif btn["action"] == "set_position_state":
-                            self.detection_manager.set_position_initial_state(True)
+                            self.detection_manager.position.set_initial(True)
 
                             if btn["img"] == "white_king.png":
                                 self.detection_manager.position.set_colour_to_play("WHITE")
@@ -44,13 +44,13 @@ class DetectScreen(BaseScreen):
                                 self.detection_manager.position.set_colour_to_play("BLACK")
 
                         elif btn["action"] == "reset_position_state":
-                            self.detection_manager.set_position_initial_state(False)
+                            self.detection_manager.position.set_initial(False)
 
     def update(self):
         self.detection_manager.make_detection()
 
         for btn in self.buttons:
-            if self.detection_manager.is_position_initial_set():
+            if self.detection_manager.position.is_initial_set():
                 if btn["action"] == "set_position_state":
                     btn["active"] = False
                 elif btn["action"] == "reset_position_state":
@@ -61,7 +61,7 @@ class DetectScreen(BaseScreen):
                 elif btn["action"] == "reset_position_state":
                     btn["active"] = False
 
-        svg_board = cv2pygame(self.detection_manager.get_board())
+        svg_board = cv2pygame(self.detection_manager.position.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
 
         feed_image = cv2pygame(self.detection_manager.get_feed())
