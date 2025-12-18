@@ -22,6 +22,9 @@ class DetectScreen(BaseScreen):
         self.board_surf = None
         self.feed_surf = None
 
+    def on_enter(self):
+        self.detection_manager.set_position_initial_state(False)
+
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
