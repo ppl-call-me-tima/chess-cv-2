@@ -42,7 +42,8 @@ class DetectionManger:
             if not self.position.is_initial_set():
                 #TODO: fix hard-code castling rights
                 self.position.set_fen(current_chess.FEN(), "KQkq")
-            
+            else:
+                self.position.is_next_position_valid(current_chess.FEN())
 
         # print("fen:", self.position.chess.fen())
 
