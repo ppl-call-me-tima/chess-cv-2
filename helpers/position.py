@@ -1,5 +1,6 @@
 import cv2
 import asyncio
+from typing import Literal
 
 import chess
 import chess.engine
@@ -206,3 +207,9 @@ class Position:
 
     async def quit(self):
         await self.engine.quit()
+
+    def set_colour_to_play(self, colour: Literal["WHITE", "BLACK"]):
+        if colour == "WHITE":
+            self.chess.turn = chess.WHITE
+        elif colour == "BLACK":
+            self.chess.turn = chess.BLACK

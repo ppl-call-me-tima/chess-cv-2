@@ -10,15 +10,17 @@ class DetectScreen(BaseScreen):
         super().__init__(manager)
         self.font = pygame.font.SysFont("Arial", 36)
         self.buttons = [
-            {"img": "back.png", "action": "back", "rect": pygame.Rect(10, 10, 50, 50)},
-            {"img": "tick.png", "action": "set_position_state", "rect": pygame.Rect(70, 10, 50, 50)}
+            {"img": "back.png", "action": "back", "active": True, "rect": pygame.Rect(10, 10, 50, 50)},
+            {"img": "white_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(70, 10, 50, 50)},
+            {"img": "black_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(130, 10, 50, 50)},
+            {"img": "cross.png", "action": "reset_position_state", "active": False, "rect": pygame.Rect(190, 10, 50, 50)},
         ]
 
         self.detection_manager = DetectionManger()
 
         self.board_rect = pygame.Rect(10, 410, 300, 300)
         self.feed_rect = pygame.Rect(320, 10, 850, 700)
-        
+
         self.board_surf = None
         self.feed_surf = None
 
@@ -30,21 +32,34 @@ class DetectScreen(BaseScreen):
             if event.button == 1:
                 mouse_pos = event.pos
                 for btn in self.buttons:
-                    if btn["rect"].collidepoint(mouse_pos):
+                    if btn["rect"].collidepoint(mouse_pos) and btn["active"]:
                         if btn["action"] == "back":
                             self.manager.set_screen("menu")
                         elif btn["action"] == "set_position_state":
                             self.detection_manager.set_position_initial_state(True)
+
+                            if btn["img"] == "white_king.png":
+                                self.detection_manager.position.set_colour_to_play("WHITE")
+                            elif btn["img"] == "black_king.png":
+                                self.detection_manager.position.set_colour_to_play("BLACK")
+
                         elif btn["action"] == "reset_position_state":
                             self.detection_manager.set_position_initial_state(False)
 
     def update(self):
         self.detection_manager.make_detection()
 
-        if self.detection_manager.is_position_initial_set():
-            self.buttons[1] = {"img": "cross.png", "action": "reset_position_state", "rect": pygame.Rect(70, 10, 50, 50)}
-        else:
-            self.buttons[1] = {"img": "tick.png", "action": "set_position_state", "rect": pygame.Rect(70, 10, 50, 50)}
+        for btn in self.buttons:
+            if self.detection_manager.is_position_initial_set():
+                if btn["action"] == "set_position_state":
+                    btn["active"] = False
+                elif btn["action"] == "reset_position_state":
+                    btn["active"] = True
+            else:
+                if btn["action"] == "set_position_state":
+                    btn["active"] = True
+                elif btn["action"] == "reset_position_state":
+                    btn["active"] = False
 
         svg_board = cv2pygame(self.detection_manager.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
@@ -65,10 +80,10 @@ class DetectScreen(BaseScreen):
 
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
-            color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
+            color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) and btn["active"] else (70, 70, 70)
             pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
             img = pygame.image.load(os.path.join(f"ui/assets/{btn['img']}"))
-            img = pygame.transform.scale(img, (30, 30))
+            img = pygame.transform.scale(img, (40, 40))
             img_rect = img.get_rect()
             img_rect.center = btn["rect"].center
             surface.blit(img, img_rect)
