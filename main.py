@@ -27,7 +27,7 @@ from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.constants import *
 
 from logger import log
-from lichess import make_move, set_credentials
+# from lichess import make_move, set_credentials
 
 from screen_manager import ScreenManager
 from ui.screens.menu_screen import MenuScreen
