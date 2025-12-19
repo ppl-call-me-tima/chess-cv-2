@@ -10,10 +10,11 @@ class DetectScreen(BaseScreen):
         super().__init__(manager)
         self.font = pygame.font.SysFont("Arial", 36)
         self.buttons = [
-            {"img": "back.png", "action": "back", "active": True, "rect": pygame.Rect(10, 10, 50, 50)},
+            {"img": "back.png", "action": "back", "active": True,                     "rect": pygame.Rect(10, 10, 50, 50)},
             {"img": "white_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(70, 10, 50, 50)},
             {"img": "black_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(130, 10, 50, 50)},
-            {"img": "cross.png", "action": "reset_position_state", "active": False, "rect": pygame.Rect(190, 10, 50, 50)},
+            {"img": "cross.png", "action": "reset_position_state", "active": False,   "rect": pygame.Rect(190, 10, 50, 50)},
+            {"img": "undo.png", "action": "undo", "active": False,                    "rect": pygame.Rect(250, 10, 50, 50)}
         ]
 
         self.detection_manager = DetectionManger()
@@ -45,6 +46,8 @@ class DetectScreen(BaseScreen):
 
                         elif btn["action"] == "reset_position_state":
                             self.detection_manager.position.set_initial(False)
+                        elif btn["action"] == "undo":
+                            self.detection_manager.position.undo_move()
 
     def update(self):
         self.detection_manager.make_detection()
@@ -53,12 +56,12 @@ class DetectScreen(BaseScreen):
             if self.detection_manager.position.is_initial_set():
                 if btn["action"] == "set_position_state":
                     btn["active"] = False
-                elif btn["action"] == "reset_position_state":
+                elif btn["action"] == "reset_position_state" or btn["action"] == "undo":
                     btn["active"] = True
             else:
                 if btn["action"] == "set_position_state":
                     btn["active"] = True
-                elif btn["action"] == "reset_position_state":
+                elif btn["action"] == "reset_position_state" or btn["action"] == "undo":
                     btn["active"] = False
 
         svg_board = cv2pygame(self.detection_manager.position.get_board())
