@@ -97,8 +97,9 @@ class DetectScreen(BaseScreen):
 
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
-            color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) and btn["active"] else (70, 70, 70)
-            
+            if not btn["active"]: continue
+
+            color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
             pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
 
             if "img" in btn:
@@ -106,7 +107,7 @@ class DetectScreen(BaseScreen):
                 img = pygame.transform.scale(img, (40, 40))
                 img_rect = img.get_rect(center=btn["rect"].center)
                 surface.blit(img, img_rect)
-            elif "text" in btn and btn["active"]:
+            elif "text" in btn:
                 text_surf = self.font.render(btn["text"], True, (255, 255, 255))
                 text_rect = text_surf.get_rect(center=btn["rect"].center)
                 surface.blit(text_surf, text_rect)
