@@ -87,6 +87,7 @@ async def main():
 
         pygame.display.flip()
 
+        await asyncio.sleep(1/60)
         continue
 
         # if not started:

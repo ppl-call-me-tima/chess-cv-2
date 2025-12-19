@@ -7,7 +7,8 @@ from detection_manager import DetectionManger
 from lichess_manager import LichessManager
 
 from helpers.misc import cv2pygame
-from logger import log
+from helpers.engine_analysis.shared_resource import shared_resource
+from helpers.engine_analysis.eval_bar import draw_eval_bar
 
 class DetectScreen(BaseScreen):
     def __init__(self, manager):
@@ -81,6 +82,11 @@ class DetectScreen(BaseScreen):
             self.buttons[5]["active"] = False
         else:
             self.buttons[5]["active"] = True
+        
+        if self.detection_manager.position.engine_on:
+            self.buttons[6]["active"] = False
+        else:
+            self.buttons[6]["active"] = True
 
         svg_board = cv2pygame(self.detection_manager.position.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
@@ -98,6 +104,14 @@ class DetectScreen(BaseScreen):
 
         if self.feed_surf:
             surface.blit(self.feed_surf, self.feed_rect)
+
+        if self.detection_manager.position.engine_on:
+            draw_eval_bar(
+                surface,
+                shared_resource["score"],
+                shared_resource["is_mate"],
+                shared_resource["winning"]
+            )
 
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:

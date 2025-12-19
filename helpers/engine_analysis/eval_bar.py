@@ -5,9 +5,8 @@ import math
 from helpers.engine_analysis.constants import *
 
 def draw_eval_bar(surface, score, is_mate, winning):
-    surface.fill(BACKGROUND_COLOR)
-    total_bar_height = SCREEN_HEIGHT - 20
-    bar_x = (SCREEN_WIDTH - BAR_WIDTH) / 2
+    total_bar_height = SCREEN_HEIGHT - 30
+    bar_x = SCREEN_WIDTH - BAR_WIDTH - 30
 
     if is_mate:
         white_height = 0 if winning == chess.BLACK else total_bar_height
@@ -26,6 +25,7 @@ def draw_eval_bar(surface, score, is_mate, winning):
     pygame.draw.rect(surface, WHITE_COLOR, white_rect)
     
     # --- Draw the score text ---
+    text_x = (bar_x + (bar_x + BAR_WIDTH)) // 2
     font = pygame.font.SysFont('Arial', 18, bold=True)
     score_text = ""
     if is_mate:
@@ -39,13 +39,13 @@ def draw_eval_bar(surface, score, is_mate, winning):
 
     if score > 0:
         text_surface = font.render(score_text, True, BLACK_COLOR)
-        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 25))
+        text_rect = text_surface.get_rect(center=(text_x, SCREEN_HEIGHT - 30))
     elif score < 0:
         text_surface = font.render(score_text, True, WHITE_COLOR)
-        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH / 2, 25))
+        text_rect = text_surface.get_rect(center=(text_x, 25))
     else:
         text_color = WHITE_COLOR if winning == chess.BLACK else BLACK_COLOR    
         text_surface = font.render(score_text, True, text_color)
-        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        text_rect = text_surface.get_rect(center=(text_x, SCREEN_HEIGHT / 2))
 
     surface.blit(text_surface, text_rect)
