@@ -4,6 +4,7 @@ import pygame
 from ui.screens.base_screen import BaseScreen
 from detection_manager import DetectionManger
 from helpers.misc import cv2pygame
+from logger import log
 
 class DetectScreen(BaseScreen):
     def __init__(self, manager):
@@ -14,7 +15,9 @@ class DetectScreen(BaseScreen):
             {"img": "white_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(70, 10, 50, 50)},
             {"img": "black_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(130, 10, 50, 50)},
             {"img": "cross.png", "action": "reset_position_state", "active": False,   "rect": pygame.Rect(190, 10, 50, 50)},
-            {"img": "undo.png", "action": "undo", "active": False,                    "rect": pygame.Rect(250, 10, 50, 50)}
+            {"img": "undo.png", "action": "undo", "active": False,                    "rect": pygame.Rect(250, 10, 50, 50)},
+
+            {"text": "Connect LICHESS", "action": "connect_lichess", "active": False, "rect": pygame.Rect(10, 350, 300, 50)},
         ]
 
         self.detection_manager = DetectionManger()
@@ -48,6 +51,8 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.set_initial(False)
                         elif btn["action"] == "undo":
                             self.detection_manager.position.undo_move()
+                        elif btn["action"] == "connect_lichess":
+                            log("lichess connect huva")
 
     def update(self):
         self.detection_manager.make_detection()
@@ -72,8 +77,8 @@ class DetectScreen(BaseScreen):
         self.feed_surf = pygame.transform.scale(self.feed_surf, (self.feed_rect.width, self.feed_rect.height))
 
     def draw(self, surface):
-        pygame.draw.rect(surface, (20, 20, 20), self.board_rect)
-        pygame.draw.rect(surface, (20, 20, 20), self.feed_rect)
+        # pygame.draw.rect(surface, (20, 20, 20), self.board_rect)
+        # pygame.draw.rect(surface, (20, 20, 20), self.feed_rect)
 
         if self.board_surf:
             surface.blit(self.board_surf, self.board_rect)
@@ -85,8 +90,13 @@ class DetectScreen(BaseScreen):
         for btn in self.buttons:
             color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) and btn["active"] else (70, 70, 70)
             pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
-            img = pygame.image.load(os.path.join(f"ui/assets/{btn['img']}"))
-            img = pygame.transform.scale(img, (40, 40))
-            img_rect = img.get_rect()
-            img_rect.center = btn["rect"].center
-            surface.blit(img, img_rect)
+
+            if "img" in btn:
+                img = pygame.image.load(os.path.join(f"ui/assets/{btn['img']}"))
+                img = pygame.transform.scale(img, (40, 40))
+                img_rect = img.get_rect(center=btn["rect"].center)
+                surface.blit(img, img_rect)
+            elif "text" in btn:
+                text_surf = self.font.render(btn["text"], True, (255, 255, 255))
+                text_rect = text_surf.get_rect(center=btn["rect"].center)
+                surface.blit(text_surf, text_rect)
