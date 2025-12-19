@@ -19,7 +19,7 @@ class MenuScreen(BaseScreen):
             btn["rect"].centerx = mid_x
             btn["rect"].centery = start_y + i * margin_bottom
     
-    def handle_event(self, event):
+    async def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_pos = event.pos

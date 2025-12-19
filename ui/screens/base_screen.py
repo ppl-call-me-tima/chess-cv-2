@@ -5,7 +5,7 @@ class BaseScreen:
     def on_enter(self):
         pass
 
-    def handle_event(self, event):
+    async def handle_event(self, event):
         pass
 
     def update(self):

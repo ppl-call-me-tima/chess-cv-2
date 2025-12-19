@@ -1,6 +1,5 @@
 import cv2
 import asyncio
-from typing import Literal
 
 import chess
 import chess.engine
@@ -23,11 +22,8 @@ class Position:
         self.engine = None
         self.engine_task: asyncio.Task = None
 
-    @classmethod
-    async def create(cls):
-        position_instance = cls()
-        transport, position_instance.engine = await chess.engine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
-        return position_instance
+    async def init_engine(self):
+        _, self.engine = await chess.engine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
 
     def clear(self):
         self.chess.clear_board()
@@ -180,7 +176,18 @@ class Position:
         
         return achievable_from_current, new_move_pushed, turn
 
-    def toggle_engine(self):
+    async def toggle_engine(self):
+        """
+        Toggle engine ON/OFF by adding/removing tasks for the engine.
+        This function also initializes the engine if it hasn't been yet. Hence needs to be awaited.
+        Only works if the initial position is set.
+        """
+        if not self.initial_set:
+            return
+
+        if self.engine is None:
+            await self.init_engine()
+
         if not self.engine_on:
             self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
         else:

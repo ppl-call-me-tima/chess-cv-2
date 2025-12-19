@@ -79,7 +79,7 @@ async def main():
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
-            screen_manager.handle_event(event)
+            await screen_manager.handle_event(event)
         
         screen_manager.update()
         screen.fill((30, 30, 30))

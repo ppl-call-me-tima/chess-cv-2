@@ -12,7 +12,7 @@ from logger import log
 class DetectScreen(BaseScreen):
     def __init__(self, manager):
         super().__init__(manager)
-        self.font = pygame.font.SysFont("Arial", 36)
+        self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
             {"img": "back.png", "action": "back", "active": True,                     "rect": pygame.Rect(10, 10, 50, 50)},
             {"img": "white_king.png", "action": "set_position_state", "active": True, "rect": pygame.Rect(70, 10, 50, 50)},
@@ -21,6 +21,7 @@ class DetectScreen(BaseScreen):
             {"img": "undo.png", "action": "undo", "active": False,                    "rect": pygame.Rect(250, 10, 50, 50)},
 
             {"text": "Connect LICHESS", "action": "connect_lichess", "active": True, "rect": pygame.Rect(10, 350, 300, 50)},
+            {"text": "ENGINE", "action": "engine_on", "active": True,                "rect": pygame.Rect(1175, 350, 100, 50)},
         ]
 
         self.detection_manager = DetectionManger()
@@ -35,7 +36,7 @@ class DetectScreen(BaseScreen):
     def on_enter(self):
         self.detection_manager.position.set_initial(False)
 
-    def handle_event(self, event: pygame.event.Event):
+    async def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_pos = event.pos
@@ -57,6 +58,8 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.undo_move()
                         elif btn["action"] == "connect_lichess":
                             self.lichess_manager.set_credentials()
+                        elif btn["action"] == "engine_on":
+                            await self.detection_manager.position.toggle_engine()
 
     def update(self):
         self.detection_manager.make_detection(self.lichess_manager)

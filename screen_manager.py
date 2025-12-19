@@ -12,9 +12,9 @@ class ScreenManager:
             self.current_screen = self.screens[name]
             self.current_screen.on_enter()
 
-    def handle_event(self, event):
+    async def handle_event(self, event):
         if self.current_screen:
-            self.current_screen.handle_event(event)
+            await self.current_screen.handle_event(event)
 
     def update(self):
         if self.current_screen:
