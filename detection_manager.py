@@ -1,6 +1,8 @@
 from ultralytics import YOLO
+import winsound
 
 from constants import BOARD_POINTS, N
+from lichess_manager import LichessManager
 from helpers.misc import init_cap
 
 from helpers.perspective_transform import PerspectiveTransformer
@@ -20,7 +22,7 @@ class DetectionManger:
 
         self.position = Position()
 
-    def make_detection(self):
+    def make_detection(self, lichess_manager: LichessManager):
         """
         Perform detection for the particular frame and update the class variables
         that might be required for making detections along the way or externally at detect_screen.py
@@ -43,7 +45,13 @@ class DetectionManger:
                 #TODO: fix hard-code castling rights
                 self.position.set_fen(current_chess.FEN(), "KQkq")
             else:
-                self.position.is_next_position_valid(current_chess.FEN())
+                valid, pushed_move, turn = self.position.is_next_position_valid(current_chess.FEN())
+
+                if lichess_manager.is_lichess_connected() and valid and pushed_move:
+                    if turn == lichess_manager.colour:
+                        lichess_manager.make_move(pushed_move)
+                    else:
+                        winsound.Beep(2500, 100)
 
         # print("fen:", self.position.chess.fen())
 

@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import requests as req
 req.packages.urllib3.util.connection.HAS_IPV6 = False
+from chess import Color, WHITE, BLACK
 
 load_dotenv(dotenv_path=".env", override=True)
 
@@ -12,7 +13,7 @@ class LichessManager:
         # TODO: maybe impleent a file-handling system where you check for previous used username to auto-use default values
         self.username = None
         self.current_game_id = None
-        self.colour = None
+        self.colour: Color | None = None
 
         self.oauth_header = {
             "Authorization": f"Bearer {LICHESS_TOKEN}",
@@ -27,11 +28,19 @@ class LichessManager:
         response = req.get(url=url, headers=self.oauth_header)
         self.username = response.json().get("username")
 
-    def set_current_game_id(self):
+    def set_current_game_id_and_colour(self):
         username = self.username if self.username else ""
         url = f"https://lichess.org/api/user/{username}/current-game"
         response = req.get(url=url, headers=self.json_header)
         self.current_game_id = response.json().get("id")
+        
+        white_player = response.json().get("players", {}).get("white", {}).get("user", {}).get("name")
+        black_player = response.json().get("players", {}).get("black", {}).get("user", {}).get("name")
+
+        if white_player == self.username:
+            self.colour = WHITE
+        elif black_player == self.username:
+            self.colour = BLACK
 
     def make_move(self, uci):
         game_id = self.current_game_id if self.current_game_id else ""
@@ -41,7 +50,7 @@ class LichessManager:
 
     def set_credentials(self):
         self.set_username()
-        self.set_current_game_id()
+        self.set_current_game_id_and_colour()
 
     def reset_current_game_id(self):
         self.current_game_id = None

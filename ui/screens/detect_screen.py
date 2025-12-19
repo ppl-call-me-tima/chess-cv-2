@@ -1,5 +1,6 @@
 import os
 import pygame
+from chess import WHITE, BLACK
 
 from ui.screens.base_screen import BaseScreen
 from detection_manager import DetectionManger
@@ -46,9 +47,9 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.set_initial(True)
 
                             if btn["img"] == "white_king.png":
-                                self.detection_manager.position.set_colour_to_play("WHITE")
+                                self.detection_manager.position.set_colour_to_play(WHITE)
                             elif btn["img"] == "black_king.png":
-                                self.detection_manager.position.set_colour_to_play("BLACK")
+                                self.detection_manager.position.set_colour_to_play(BLACK)
 
                         elif btn["action"] == "reset_position_state":
                             self.detection_manager.position.set_initial(False)
@@ -58,7 +59,7 @@ class DetectScreen(BaseScreen):
                             self.lichess_manager.set_credentials()
 
     def update(self):
-        self.detection_manager.make_detection()
+        self.detection_manager.make_detection(self.lichess_manager)
 
         for btn in self.buttons:
             if self.detection_manager.position.is_initial_set():
