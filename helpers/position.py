@@ -18,6 +18,7 @@ class Position:
         self.chess = chess.Board()
         self.initial_set = False
         self.current_matrix = []
+        self.board_flipped = False
         self.engine_on = False
         self.engine = None
         self.engine_task: asyncio.Task = None
@@ -205,12 +206,15 @@ class Position:
 
     def get_board(self) -> np.ndarray:
         chessboard = self.chess
-        svg_string = chess.svg.board(chessboard, size=300)
+        svg_string = chess.svg.board(chessboard, size=300, flipped=self.board_flipped)
         
         png_data = cairosvg.svg2png(bytestring=svg_string)
         img_pil = Image.open(io.BytesIO(png_data))
         img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
         return img_np
+
+    def flip_board(self):
+        self.board_flipped = not self.board_flipped
 
     async def quit(self):
         await self.engine.quit()

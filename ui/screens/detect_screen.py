@@ -13,6 +13,16 @@ from helpers.engine_analysis.eval_bar import draw_eval_bar
 class DetectScreen(BaseScreen):
     def __init__(self, manager):
         super().__init__(manager)
+
+        self.board_rect = pygame.Rect(10, 410, 300, 300)
+        self.feed_rect = pygame.Rect(320, 10, 850, 700)
+
+        self.board_surf = None
+        self.feed_surf = None
+
+        self.detection_manager = DetectionManger()
+        self.lichess_manager = LichessManager()
+
         self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
             {"img": "back.png", "action": "back", "active": True,                     "rect": pygame.Rect(10, 10, 50, 50)},
@@ -24,16 +34,8 @@ class DetectScreen(BaseScreen):
             {"text": "Connect LICHESS", "action": "connect_lichess", "active": True, "rect": pygame.Rect(10, 350, 300, 50)},
             {"text": "ENGINE", "action": "engine_on", "active": True,                "rect": pygame.Rect(1175, 350, 100, 50)},
             {"action": "engine_off", "active": False,                                "rect": pygame.Rect(1200, 10, 50, 690)},
+            {"action": "flip_board", "active": True,                                 "rect": self.board_rect}
         ]
-
-        self.detection_manager = DetectionManger()
-        self.lichess_manager = LichessManager()
-
-        self.board_rect = pygame.Rect(10, 410, 300, 300)
-        self.feed_rect = pygame.Rect(320, 10, 850, 700)
-
-        self.board_surf = None
-        self.feed_surf = None
 
     def on_enter(self):
         self.detection_manager.position.set_initial(False)
@@ -62,6 +64,8 @@ class DetectScreen(BaseScreen):
                             self.lichess_manager.set_credentials()
                         elif btn["action"] == "engine_on" or btn["action"] == "engine_off":
                             await self.detection_manager.position.toggle_engine()
+                        elif btn["action"] == "flip_board":
+                            self.detection_manager.position.flip_board()
 
     def update(self):
         self.detection_manager.make_detection(self.lichess_manager)
