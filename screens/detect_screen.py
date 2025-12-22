@@ -2,7 +2,7 @@ import os
 import pygame
 from chess import WHITE, BLACK
 
-from ui.screens.base_screen import BaseScreen
+from screens.base_screen import BaseScreen
 from detection_manager import DetectionManger
 from lichess_manager import LichessManager
 
@@ -128,7 +128,7 @@ class DetectScreen(BaseScreen):
 
             if "img" in btn:
                 pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
-                img = pygame.image.load(os.path.join(f"ui/assets/{btn['img']}"))
+                img = pygame.image.load(os.path.join(f"assets/{btn['img']}"))
                 img = pygame.transform.scale(img, (40, 40))
                 img_rect = img.get_rect(center=btn["rect"].center)
                 surface.blit(img, img_rect)

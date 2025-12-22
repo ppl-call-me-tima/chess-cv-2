@@ -7,8 +7,8 @@ import asyncio
 from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 
 from screen_manager import ScreenManager
-from ui.screens.menu_screen import MenuScreen
-from ui.screens.detect_screen import DetectScreen
+from screens.menu_screen import MenuScreen
+from screens.detect_screen import DetectScreen
 
 async def main():
     pygame.init()

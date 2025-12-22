@@ -1,5 +1,5 @@
 import pygame
-from ui.screens.base_screen import BaseScreen
+from screens.base_screen import BaseScreen
 
 class MenuScreen(BaseScreen):
     def __init__(self, manager):
