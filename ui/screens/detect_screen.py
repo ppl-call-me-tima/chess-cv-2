@@ -23,6 +23,7 @@ class DetectScreen(BaseScreen):
 
             {"text": "Connect LICHESS", "action": "connect_lichess", "active": True, "rect": pygame.Rect(10, 350, 300, 50)},
             {"text": "ENGINE", "action": "engine_on", "active": True,                "rect": pygame.Rect(1175, 350, 100, 50)},
+            {"action": "engine_off", "active": False,                                "rect": pygame.Rect(1200, 10, 50, 690)},
         ]
 
         self.detection_manager = DetectionManger()
@@ -59,7 +60,7 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.undo_move()
                         elif btn["action"] == "connect_lichess":
                             self.lichess_manager.set_credentials()
-                        elif btn["action"] == "engine_on":
+                        elif btn["action"] == "engine_on" or btn["action"] == "engine_off":
                             await self.detection_manager.position.toggle_engine()
 
     def update(self):
@@ -85,8 +86,10 @@ class DetectScreen(BaseScreen):
         
         if self.detection_manager.position.engine_on:
             self.buttons[6]["active"] = False
+            self.buttons[7]["active"] = True
         else:
             self.buttons[6]["active"] = True
+            self.buttons[7]["active"] = False
 
         svg_board = cv2pygame(self.detection_manager.position.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
@@ -118,14 +121,17 @@ class DetectScreen(BaseScreen):
             if not btn["active"]: continue
 
             color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
-            pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
 
             if "img" in btn:
+                pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
                 img = pygame.image.load(os.path.join(f"ui/assets/{btn['img']}"))
                 img = pygame.transform.scale(img, (40, 40))
                 img_rect = img.get_rect(center=btn["rect"].center)
                 surface.blit(img, img_rect)
             elif "text" in btn:
+                pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
                 text_surf = self.font.render(btn["text"], True, (255, 255, 255))
                 text_rect = text_surf.get_rect(center=btn["rect"].center)
                 surface.blit(text_surf, text_rect)
+            else:
+                pass
