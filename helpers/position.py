@@ -216,8 +216,9 @@ class Position:
     def flip_board(self):
         self.board_flipped = not self.board_flipped
 
-    async def quit(self):
-        await self.engine.quit()
+    async def engine_quit(self):
+        if self.engine:
+            await self.engine.quit()
 
     def set_colour_to_play(self, colour: chess.Color):
             self.chess.turn = colour

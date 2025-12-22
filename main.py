@@ -38,7 +38,7 @@ async def main():
         await asyncio.sleep(1/60)
         continue
     
-    # await position.quit()
+    await screen_manager.screens["detect"].detection_manager.position.engine_quit()
 
 if __name__ == "__main__":
     asyncio.run(main())
