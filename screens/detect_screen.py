@@ -3,8 +3,8 @@ import pygame
 from chess import WHITE, BLACK
 
 from screens.base_screen import BaseScreen
-from detection_manager import DetectionManger
-from lichess_manager import LichessManager
+from managers.detection_manager import DetectionManger
+from managers.lichess_manager import LichessManager
 
 from helpers.misc import cv2pygame
 from helpers.engine_analysis.shared_resource import shared_resource

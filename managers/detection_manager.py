@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import winsound
 
 from constants import BOARD_POINTS, N
-from lichess_manager import LichessManager
+from managers.lichess_manager import LichessManager
 from helpers.misc import init_cap
 
 from helpers.perspective_transform import PerspectiveTransformer

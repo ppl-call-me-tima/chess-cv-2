@@ -6,7 +6,7 @@ import asyncio
 
 from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 
-from screen_manager import ScreenManager
+from managers.screen_manager import ScreenManager
 from screens.menu_screen import MenuScreen
 from screens.detect_screen import DetectScreen
 
