@@ -1,5 +1,4 @@
 import chess
-from logger import log
 
 from helpers.engine_analysis.shared_resource import shared_resource
 

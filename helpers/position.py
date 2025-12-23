@@ -10,7 +10,7 @@ import io
 from PIL import Image
 import numpy as np
 
-from logger import log
+from helpers.logger import log
 from helpers.engine_analysis.engine_analysis import engine_analysis
 
 class Position:
