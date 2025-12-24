@@ -9,6 +9,7 @@ from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 from managers.screen_manager import ScreenManager
 from screens.menu_screen import MenuScreen
 from screens.detect_screen import DetectScreen
+from screens.setup_screen import SetupScreen
 
 async def main():
     pygame.init()
@@ -18,6 +19,7 @@ async def main():
     screen_manager = ScreenManager(screen)
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
     screen_manager.add_screen("detect", DetectScreen(screen_manager))
+    screen_manager.add_screen("setup", SetupScreen(screen_manager))
 
     screen_manager.set_screen("menu")
 

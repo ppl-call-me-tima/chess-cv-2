@@ -8,6 +8,7 @@ class MenuScreen(BaseScreen):
         self.title_font = pygame.font.SysFont("Arial", 48, bold=True)
         self.buttons = [
             {"text": "DETECT", "action": "detect", "rect": pygame.Rect(0, 0, 300, 60)},
+            {"text": "SETUP", "action": "setup", "rect": pygame.Rect(0, 0, 300, 60)},
             {"text": "EXIT", "action": "exit", "rect": pygame.Rect(0, 0, 300, 60)},
         ]
 
