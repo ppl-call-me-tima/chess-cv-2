@@ -48,7 +48,7 @@ class SetupScreen(BaseScreen):
                 for btn in self.buttons:
                     if btn["rect"].collidepoint(mouse_pos):
                         if btn["action"] == "back":
-                            self.manager.set_screen("menu")
+                            self.screen_manager.set_screen("menu")
 
         camera_index = self.camera_dropdown.handle_event(event)
         gpu_index = self.gpu_dropdown.handle_event(event)

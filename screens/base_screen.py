@@ -1,6 +1,6 @@
 class BaseScreen:
-    def __init__(self, manager):
-        self.manager = manager
+    def __init__(self, screen_manager):
+        self.screen_manager = screen_manager
     
     def on_enter(self):
         pass

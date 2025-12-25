@@ -29,7 +29,7 @@ class MenuScreen(BaseScreen):
                         if btn["action"] == "exit":
                             pygame.event.post(pygame.event.Event(pygame.QUIT))
                         else:
-                            self.manager.set_screen(btn["action"])
+                            self.screen_manager.set_screen(btn["action"])
 
     def draw(self, surface):
         title_surf = self.title_font.render("chessCV", True, (255, 255, 255))

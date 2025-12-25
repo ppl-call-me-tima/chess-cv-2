@@ -47,7 +47,7 @@ class DetectScreen(BaseScreen):
                 for btn in self.buttons:
                     if btn["rect"].collidepoint(mouse_pos) and btn["active"]:
                         if btn["action"] == "back":
-                            self.manager.set_screen("menu")
+                            self.screen_manager.set_screen("menu")
                         elif btn["action"] == "set_position_state":
                             self.detection_manager.position.set_initial(True)
 
