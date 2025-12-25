@@ -1,3 +1,4 @@
+import os
 import pygame
 
 from screens.base_screen import BaseScreen
@@ -10,6 +11,10 @@ class SetupScreen(BaseScreen):
         super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
+
+        self.buttons = [
+            {"img": "back.png", "action": "back", "active": True, "rect": pygame.Rect(10, 10, 50, 50)},
+        ]
         
         self.camera_manager = camera_manager
         self.cameras = self.camera_manager.get_camera_list()
@@ -37,6 +42,14 @@ class SetupScreen(BaseScreen):
         self.feed_text = "No camera selected"
 
     async def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                mouse_pos = event.pos
+                for btn in self.buttons:
+                    if btn["rect"].collidepoint(mouse_pos):
+                        if btn["action"] == "back":
+                            self.manager.set_screen("menu")
+
         camera_index = self.camera_dropdown.handle_event(event)
         gpu_index = self.gpu_dropdown.handle_event(event)
 
@@ -56,6 +69,19 @@ class SetupScreen(BaseScreen):
             self.feed_text = "Camera not available"
 
     def draw(self, surface):
+        mouse_pos = pygame.mouse.get_pos()
+        for btn in self.buttons:
+                if not btn["active"]: continue
+
+                color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
+
+                if "img" in btn:
+                    pygame.draw.rect(surface, color, btn["rect"], border_radius=10)
+                    img = pygame.image.load(os.path.join(f"assets/{btn['img']}"))
+                    img = pygame.transform.scale(img, (40, 40))
+                    img_rect = img.get_rect(center=btn["rect"].center)
+                    surface.blit(img, img_rect)
+
         for label in self.labels:
             surface.blit(self.font.render(label["text"], True, self.font_colour), label["rect"])
         
