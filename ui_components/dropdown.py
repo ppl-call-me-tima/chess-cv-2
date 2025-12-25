@@ -5,7 +5,8 @@ class Dropdown:
     def __init__(
             self, x, y, width, height, font,
             options: List[str],
-            default_text: str ="Choose option",
+            options_indices=None,
+            default_text: str="Choose option",
             default_index=None,
             option_height=30,
             bg_colour=(50, 50, 50),
@@ -17,6 +18,7 @@ class Dropdown:
         self.default_text = default_text
         self.font = font
         self.options = options
+        self.options_indices = options_indices
         self.selected_index = default_index
         self.is_open = False
         self.font = font
@@ -36,7 +38,7 @@ class Dropdown:
                         if option_rect.collidepoint(event.pos):
                             self.selected_index = i
                             self.is_open = False
-                            return i
+                            return self.options_indices[i] if self.options_indices is not None else i
                     
                     # blank click outside
                     self.is_open = False
