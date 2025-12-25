@@ -3,6 +3,7 @@ import winsound
 
 from constants import BOARD_POINTS, N
 from managers.lichess_manager import LichessManager
+from managers.camera_manager import CameraManager
 from helpers.misc import init_cap
 
 from helpers.perspective_transform import PerspectiveTransformer
@@ -13,7 +14,7 @@ from helpers.detection.detect_corners import detect_corners
 from helpers.detection.detect_pieces import detect_pieces
 
 class DetectionManger:
-    def __init__(self, camera_manager):
+    def __init__(self, camera_manager: CameraManager):
         self.cap = init_cap()
         self.image = None
 
@@ -29,8 +30,11 @@ class DetectionManger:
         that might be required for making detections along the way or externally at detect_screen.py
         """
 
-        ret, self.image = self.cap.read()
-
+        frame = self.camera_manager.get_frame()
+        if frame is None:
+            return
+        
+        self.image = frame
         corners = detect_corners(self.corner_model, self.image, annotate=True)
         piece_coods, piece_class = detect_pieces(self.piece_model, self.image, annotate=True)
 
