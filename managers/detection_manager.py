@@ -4,7 +4,6 @@ import winsound
 from constants import BOARD_POINTS, N
 from managers.lichess_manager import LichessManager
 from managers.camera_manager import CameraManager
-from helpers.misc import init_cap
 
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
@@ -15,7 +14,6 @@ from helpers.detection.detect_pieces import detect_pieces
 
 class DetectionManger:
     def __init__(self, camera_manager: CameraManager):
-        self.cap = init_cap()
         self.image = None
 
         self.corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
