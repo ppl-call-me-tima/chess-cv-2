@@ -1,11 +1,12 @@
-import cv2
 import pygame
 
 from screens.base_screen import BaseScreen
+from managers.camera_manager import CameraManager
 from ui_components.dropdown import Dropdown
+from helpers.misc import cv2pygame
 
 class SetupScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager):
+    def __init__(self, screen_manager, camera_manager: CameraManager):
         super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
@@ -46,7 +47,7 @@ class SetupScreen(BaseScreen):
         if self.camera_manager.cap is None:
             return
 
-        frame = self.camera_manager.get_frame()
+        frame = cv2pygame(self.camera_manager.get_frame())
         if frame is not None:
             self.feed_surf = pygame.surfarray.make_surface(frame)
             self.feed_surf = pygame.transform.scale(self.feed_surf, (self.feed_rect.width, self.feed_rect.height))

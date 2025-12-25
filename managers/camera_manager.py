@@ -1,8 +1,6 @@
 import cv2
 from cv2_enumerate_cameras import enumerate_cameras
 
-from helpers.misc import cv2pygame
-
 class CameraManager:
     def __init__(self):
         self.cap = None
@@ -39,6 +37,6 @@ class CameraManager:
         if self.cap is not None and self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
-                return cv2pygame(frame)
+                return frame
         
         return None
