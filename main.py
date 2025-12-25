@@ -7,6 +7,8 @@ import asyncio
 from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 
 from managers.screen_manager import ScreenManager
+from managers.camera_manager import CameraManager
+
 from screens.menu_screen import MenuScreen
 from screens.detect_screen import DetectScreen
 from screens.setup_screen import SetupScreen
@@ -17,9 +19,11 @@ async def main():
     pygame.display.set_caption("ChessCV")
 
     screen_manager = ScreenManager(screen)
+    camera_manager = CameraManager()
+
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
-    screen_manager.add_screen("detect", DetectScreen(screen_manager))
-    screen_manager.add_screen("setup", SetupScreen(screen_manager))
+    screen_manager.add_screen("detect", DetectScreen(screen_manager, camera_manager))
+    screen_manager.add_screen("setup", SetupScreen(screen_manager, camera_manager))
 
     screen_manager.set_screen("menu")
 

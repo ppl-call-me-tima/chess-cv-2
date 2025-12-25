@@ -13,7 +13,7 @@ from helpers.detection.detect_corners import detect_corners
 from helpers.detection.detect_pieces import detect_pieces
 
 class DetectionManger:
-    def __init__(self):
+    def __init__(self, camera_manager):
         self.cap = init_cap()
         self.image = None
 
@@ -21,6 +21,7 @@ class DetectionManger:
         self.piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
 
         self.position = Position()
+        self.camera_manager = camera_manager
 
     def make_detection(self, lichess_manager: LichessManager):
         """

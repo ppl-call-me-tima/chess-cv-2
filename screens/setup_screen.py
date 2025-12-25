@@ -3,15 +3,14 @@ import pygame
 
 from screens.base_screen import BaseScreen
 from ui_components.dropdown import Dropdown
-from managers.camera_manager import CameraManager
 
 class SetupScreen(BaseScreen):
-    def __init__(self, manager):
-        super().__init__(manager)
+    def __init__(self, screen_manager, camera_manager):
+        super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
         
-        self.camera_manager = CameraManager()
+        self.camera_manager = camera_manager
         self.cameras = self.camera_manager.get_camera_list()
         
         self.labels = [

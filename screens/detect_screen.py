@@ -11,8 +11,8 @@ from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.eval_bar import draw_eval_bar
 
 class DetectScreen(BaseScreen):
-    def __init__(self, manager):
-        super().__init__(manager)
+    def __init__(self, screen_manager, camera_manager):
+        super().__init__(screen_manager)
 
         self.board_rect = pygame.Rect(10, 410, 300, 300)
         self.feed_rect = pygame.Rect(320, 10, 850, 700)
@@ -20,7 +20,7 @@ class DetectScreen(BaseScreen):
         self.board_surf = None
         self.feed_surf = None
 
-        self.detection_manager = DetectionManger()
+        self.detection_manager = DetectionManger(camera_manager)
         self.lichess_manager = LichessManager()
 
         self.font = pygame.font.SysFont("Arial", 24)
