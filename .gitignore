@@ -11,3 +11,5 @@ next.txt
 logs.txt
 notes.txt
 testing/
+*.pt
+models/

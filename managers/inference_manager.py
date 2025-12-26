@@ -12,8 +12,8 @@ class InferenceManager:
         self.device = None
         self.device_list = []
 
-        self.corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
-        self.piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
+        self.corner_model = YOLO(r"models/corner_detection.pt")
+        self.piece_model = YOLO(r"models/piece_detection.pt")
 
     def get_device_list(self):
         self.device_list = []
