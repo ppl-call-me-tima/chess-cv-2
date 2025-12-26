@@ -3,11 +3,12 @@ import pygame
 
 from screens.base_screen import BaseScreen
 from managers.camera_manager import CameraManager
+from managers.inference_manager import InferenceManager
 from ui_components.dropdown import Dropdown
 from helpers.misc import cv2pygame
 
 class SetupScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager: CameraManager):
+    def __init__(self, screen_manager, camera_manager: CameraManager, inference_manager: InferenceManager):
         super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
@@ -17,8 +18,11 @@ class SetupScreen(BaseScreen):
         ]
         
         self.camera_manager = camera_manager
+        self.inference_manager = inference_manager
+
         self.cameras = self.camera_manager.get_camera_list()
-        
+        self.devices = self.inference_manager.get_device_list()
+
         self.labels = [
             {"text": "Select Camera:", "rect": pygame.Rect(50, 170, 400, 30)},
             {"text": "Select GPU/CPU:", "rect": pygame.Rect(50, 420, 400, 30)},
@@ -33,7 +37,7 @@ class SetupScreen(BaseScreen):
         self.gpu_dropdown = Dropdown(
             50, 450, 400, 40,
             font=self.font,
-            options=["CPU", "GPU"],
+            options=self.devices,
             default_text="Choose GPU",
         )
 
@@ -55,6 +59,8 @@ class SetupScreen(BaseScreen):
 
         if camera_index is not None:
             self.camera_manager.set_camera(camera_index)
+        if gpu_index is not None:
+            self.inference_manager.set_device(gpu_index)
 
     def update(self):
         if self.camera_manager.cap is None:
