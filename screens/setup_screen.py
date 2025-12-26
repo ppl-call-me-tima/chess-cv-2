@@ -38,7 +38,7 @@ class SetupScreen(BaseScreen):
             50, 450, 400, 40,
             font=self.font,
             options=self.devices,
-            default_text="Choose GPU",
+            default_text="Choose inference device",
         )
 
         self.feed_surf = None
