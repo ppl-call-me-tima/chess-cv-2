@@ -48,3 +48,13 @@ def get_four_corners_from_hull(hull):
     bottom_left = hull[np.argmax(hull[:, 1] - hull[:, 0])]
     
     return np.array([top_left, top_right, bottom_right, bottom_left])
+
+def sort_points_by_angle(pts):
+    # Calculate centroid
+    center = pts.mean(axis=0)
+
+    # Calculate angles
+    angles = np.arctan2(pts[:, 1] - center[1], pts[:, 0] - center[0])
+
+    sorted_indices = np.argsort(angles)
+    return pts[sorted_indices]

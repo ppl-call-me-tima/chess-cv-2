@@ -1,7 +1,7 @@
-from ultralytics import YOLO
 import winsound
 
 from constants import BOARD_POINTS, N
+
 from managers.lichess_manager import LichessManager
 from managers.camera_manager import CameraManager
 from managers.inference_manager import InferenceManager
@@ -10,18 +10,12 @@ from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
 from helpers.position import Position
 
-from helpers.detection.detect_corners import detect_corners
-from helpers.detection.detect_pieces import detect_pieces
-
 class DetectionManger:
     def __init__(self, camera_manager: CameraManager, inferece_manager: InferenceManager):
         self.image = None
-
-        self.corner_model = YOLO(r"runs_corner_detection\content\runs\segment\train3\weights\best.pt")
-        self.piece_model = YOLO(r"runs_piece_detection_improved1\content\runs\detect\train\weights\best.pt")
-
         self.position = Position()
         self.camera_manager = camera_manager
+        self.inference_manager = inferece_manager
 
     def make_detection(self, lichess_manager: LichessManager):
         """
@@ -34,8 +28,8 @@ class DetectionManger:
             return
         
         self.image = frame
-        corners = detect_corners(self.corner_model, self.image, annotate=True)
-        piece_coods, piece_class = detect_pieces(self.piece_model, self.image, annotate=True)
+        corners = self.inference_manager.detect_corners(self.image, annotate=True)
+        piece_coods, piece_class = self.inference_manager.detect_pieces(self.image, annotate=True)
 
         if corners is not None:
             transformer = PerspectiveTransformer(corners, BOARD_POINTS)
