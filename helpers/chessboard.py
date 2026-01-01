@@ -1,12 +1,4 @@
 import os
-import cv2
-
-import chess
-import chess.svg
-import cairosvg
-import io
-from PIL import Image
-import numpy as np
 
 class Chessboard:
     def __init__(self, xy, piece_class, N):
@@ -80,12 +72,3 @@ class Chessboard:
         for i in range(8):
             for j in range(8):
                 self.matrix[i][j] = rotated[i][j]
-
-    def chessboard(self) -> np.ndarray:
-        chessboard = chess.Board(fen=self.FEN())
-        svg_string = chess.svg.board(chessboard)
-        
-        png_data = cairosvg.svg2png(bytestring=svg_string)
-        img_pil = Image.open(io.BytesIO(png_data))
-        img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
-        return img_np
