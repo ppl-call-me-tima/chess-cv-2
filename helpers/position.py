@@ -5,7 +5,7 @@ import chess
 import chess.engine
 
 import chess.svg
-import cairosvg
+import resvg_py as resvg
 import io
 from PIL import Image
 import numpy as np
@@ -207,8 +207,7 @@ class Position:
     def get_board(self) -> np.ndarray:
         chessboard = self.chess
         svg_string = chess.svg.board(chessboard, size=300, flipped=self.board_flipped)
-        
-        png_data = cairosvg.svg2png(bytestring=svg_string)
+        png_data = resvg.svg_to_bytes(svg_string)
         img_pil = Image.open(io.BytesIO(png_data))
         img_np = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
         return img_np
