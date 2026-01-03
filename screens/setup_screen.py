@@ -1,14 +1,16 @@
 import os
 import pygame
 
-from screens.base_screen import BaseScreen
 from managers.camera_manager import CameraManager
 from managers.inference_manager import InferenceManager
+from managers.data_manager import DataManager
+
+from screens.base_screen import BaseScreen
 from ui_components.dropdown import Dropdown
 from helpers.misc import cv2pygame
 
 class SetupScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager: CameraManager, inference_manager: InferenceManager):
+    def __init__(self, screen_manager, camera_manager: CameraManager, inference_manager: InferenceManager, data_manager: DataManager):
         super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
@@ -19,6 +21,7 @@ class SetupScreen(BaseScreen):
         
         self.camera_manager = camera_manager
         self.inference_manager = inference_manager
+        self.data_manager = data_manager
 
         self.cameras = self.camera_manager.get_camera_list()
         self.devices = self.inference_manager.get_device_list()
@@ -30,12 +33,14 @@ class SetupScreen(BaseScreen):
 
         self.camera_dropdown = Dropdown(
             50, 200, 400, 40,
+            label="camera_index",
             font=self.font,
             options=[cam[1] for cam in self.cameras], 
             default_text="Choose camera"
         )
         self.gpu_dropdown = Dropdown(
             50, 450, 400, 40,
+            label="inference_index",
             font=self.font,
             options=self.devices,
             default_text="Choose inference device",
@@ -44,6 +49,9 @@ class SetupScreen(BaseScreen):
         self.feed_surf = None
         self.feed_rect = pygame.Rect(500, 50, 730, 620)
         self.feed_text = "No camera selected"
+
+    def on_enter(self):
+        self.data_manager.read_and_update_managers()
 
     async def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -54,8 +62,8 @@ class SetupScreen(BaseScreen):
                         if btn["action"] == "back":
                             self.screen_manager.set_screen("menu")
 
-        camera_index = self.camera_dropdown.handle_event(event)
-        gpu_index = self.gpu_dropdown.handle_event(event)
+        camera_index = self.camera_dropdown.handle_event(event, self.data_manager)
+        gpu_index = self.gpu_dropdown.handle_event(event, self.data_manager)
 
         if camera_index is not None:
             self.camera_manager.set_camera(camera_index)

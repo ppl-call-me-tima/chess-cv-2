@@ -1,9 +1,11 @@
 import pygame
 from typing import List
 
+from managers.data_manager import DataManager
+
 class Dropdown:
     def __init__(
-            self, x, y, width, height, font,
+            self, x, y, width, height, label, font,
             options: List[str],
             options_indices=None,
             default_text: str="Choose option",
@@ -15,6 +17,7 @@ class Dropdown:
             border_colour=(100, 100, 100),
         ):
         self.rect = pygame.Rect(x, y, width, height)
+        self.label = label
         self.default_text = default_text
         self.font = font
         self.options = options
@@ -29,7 +32,7 @@ class Dropdown:
         self.hover_colour = hover_colour
         self.border_colour = border_colour
 
-    def handle_event(self, event):
+    def handle_event(self, event, data_manager: DataManager):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if self.is_open:
@@ -38,6 +41,7 @@ class Dropdown:
                         if option_rect.collidepoint(event.pos):
                             self.selected_index = i
                             self.is_open = False
+                            data_manager.set_value(i, self.label)
                             return self.options_indices[i] if self.options_indices is not None else i
                     
                     # blank click outside

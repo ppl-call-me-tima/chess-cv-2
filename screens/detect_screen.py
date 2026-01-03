@@ -3,15 +3,17 @@ import pygame
 from chess import WHITE, BLACK
 
 from screens.base_screen import BaseScreen
+
 from managers.detection_manager import DetectionManger
 from managers.lichess_manager import LichessManager
+from managers.data_manager import DataManager
 
 from helpers.misc import cv2pygame
 from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.eval_bar import draw_eval_bar
 
 class DetectScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager, inference_manager):
+    def __init__(self, screen_manager, camera_manager, inference_manager, data_manager: DataManager):
         super().__init__(screen_manager)
 
         self.board_rect = pygame.Rect(10, 410, 300, 300)
@@ -22,6 +24,7 @@ class DetectScreen(BaseScreen):
 
         self.detection_manager = DetectionManger(camera_manager, inference_manager)
         self.lichess_manager = LichessManager()
+        self.data_manager = data_manager
 
         self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
@@ -39,6 +42,7 @@ class DetectScreen(BaseScreen):
 
     def on_enter(self):
         self.detection_manager.position.set_initial(False)
+        self.data_manager.read_and_update_managers()
 
     async def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:

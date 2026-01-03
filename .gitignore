@@ -13,3 +13,4 @@ notes.txt
 testing/
 *.pt
 models/
+settings.json
