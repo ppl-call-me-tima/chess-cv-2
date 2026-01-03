@@ -1,12 +1,6 @@
-import os
-from dotenv import load_dotenv
 import requests as req
 req.packages.urllib3.util.connection.HAS_IPV6 = False
 from chess import Color, WHITE, BLACK
-
-load_dotenv(dotenv_path=".env", override=True)
-
-LICHESS_TOKEN = os.getenv("LICHESS_TOKEN")
 
 class LichessManager:
     def __init__(self):
@@ -15,13 +9,21 @@ class LichessManager:
         self.current_game_id = None
         self.colour: Color | None = None
 
-        self.oauth_header = {
-            "Authorization": f"Bearer {LICHESS_TOKEN}",
-        }
-
+        self.oauth_header = {}
         self.json_header = {
             "Accept": "application/json",
         }
+    
+    def set_token(self, token):
+        if not token.startswith("lip_"):
+            return None
+        
+        self.oauth_header = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        self.set_username()
+        return self.username
 
     def set_username(self):
         url = "https://lichess.org/api/account"

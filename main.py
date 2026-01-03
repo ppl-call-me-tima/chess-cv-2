@@ -9,6 +9,7 @@ from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 from managers.screen_manager import ScreenManager
 from managers.camera_manager import CameraManager
 from managers.inference_manager import InferenceManager
+from managers.lichess_manager import LichessManager
 from managers.data_manager import DataManager
 
 from screens.menu_screen import MenuScreen
@@ -20,14 +21,17 @@ async def main():
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("ChessCV")
 
+    pygame.scrap.init()
+
     screen_manager = ScreenManager(screen)
     camera_manager = CameraManager()
     inference_manager = InferenceManager()
+    lichess_manager = LichessManager()
     data_manager = DataManager(camera_manager, inference_manager)
 
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
-    screen_manager.add_screen("detect", DetectScreen(screen_manager, camera_manager, inference_manager, data_manager))
-    screen_manager.add_screen("setup", SetupScreen(screen_manager, camera_manager, inference_manager, data_manager))
+    screen_manager.add_screen("detect", DetectScreen(screen_manager, camera_manager, inference_manager, data_manager, lichess_manager))
+    screen_manager.add_screen("setup", SetupScreen(screen_manager, camera_manager, inference_manager, data_manager, lichess_manager))
 
     screen_manager.set_screen("menu")
 

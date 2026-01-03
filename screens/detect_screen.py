@@ -13,7 +13,7 @@ from helpers.engine_analysis.shared_resource import shared_resource
 from helpers.engine_analysis.eval_bar import draw_eval_bar
 
 class DetectScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager, inference_manager, data_manager: DataManager):
+    def __init__(self, screen_manager, camera_manager, inference_manager, data_manager: DataManager, lichess_manager: LichessManager):
         super().__init__(screen_manager)
 
         self.board_rect = pygame.Rect(10, 410, 300, 300)
@@ -23,7 +23,7 @@ class DetectScreen(BaseScreen):
         self.feed_surf = None
 
         self.detection_manager = DetectionManger(camera_manager, inference_manager)
-        self.lichess_manager = LichessManager()
+        self.lichess_manager = lichess_manager
         self.data_manager = data_manager
 
         self.font = pygame.font.SysFont("Arial", 24)

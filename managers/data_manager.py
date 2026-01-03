@@ -34,7 +34,7 @@ class DataManager:
         if "inference_index" in file_data:
             self.inference_manager.set_device(int(file_data.get("inference_index")))
 
-    def set_value(self, index: int, label: str):
+    def set_value(self, index: int | str, label: str):
         file_data = self.get_dict()
         with open(self.file, "w") as f:
             file_data[label] = index
