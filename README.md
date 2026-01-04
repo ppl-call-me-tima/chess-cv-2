@@ -1,6 +1,13 @@
 # ChessCV
 ChessCV transforms your physical chessboard into a fully functional virtual eBoard using computer vision. By tracking moves via camera, it allows you to play directly against online opponents on Lichess or perform real-time engine analysis using your physical pieces.
 
+<center>
+
+![Python Version](https://img.shields.io/badge/python->=3.10_%7C_<=3.13-blue)
+</center>
+
+---
+
 ## Demo
 
 ## Features
@@ -16,7 +23,7 @@ Once enabled in-app, you will be able to see a live evaluation-bar of the positi
 
 ## Requirements
 - Windows 10 or greater
-- Python version 3.10 or greater
+- Python version: `>=3.10` and `<=3.13`
 - A decent GPU (RTX 3050 recommended)
 - A camera (smartphone-camera connection recommended)
 
