@@ -27,7 +27,7 @@ async def main():
     camera_manager = CameraManager()
     inference_manager = InferenceManager()
     lichess_manager = LichessManager()
-    data_manager = DataManager(camera_manager, inference_manager)
+    data_manager = DataManager(camera_manager, inference_manager, lichess_manager)
 
     screen_manager.add_screen("menu", MenuScreen(screen_manager))
     screen_manager.add_screen("detect", DetectScreen(screen_manager, camera_manager, inference_manager, data_manager, lichess_manager))
