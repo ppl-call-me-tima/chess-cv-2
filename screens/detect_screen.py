@@ -65,7 +65,7 @@ class DetectScreen(BaseScreen):
                         elif btn["action"] == "undo":
                             self.detection_manager.position.undo_move()
                         elif btn["action"] == "connect_lichess":
-                            self.lichess_manager.set_credentials()
+                            self.lichess_manager.set_current_game_id_and_colour()
                         elif btn["action"] == "engine_on" or btn["action"] == "engine_off":
                             await self.detection_manager.position.toggle_engine()
                         elif btn["action"] == "flip_board":

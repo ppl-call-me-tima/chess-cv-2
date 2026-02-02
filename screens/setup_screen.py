@@ -70,7 +70,12 @@ class SetupScreen(BaseScreen):
                             self.screen_manager.set_screen("menu")
                         elif btn["action"] == "lichess_token":
                             token = pygame.scrap.get(pygame.SCRAP_TEXT).decode().rstrip('\x00')
-                            self.data_manager.set_value(token, "lichess_token")
+                            username = self.lichess_manager.fetch_username(token)
+
+                            if username:
+                                self.data_manager.set_value(token, "lichess_token")
+                                self.data_manager.set_value(username, "lichess_username")
+                                self.username_text = username
 
         camera_index = self.camera_dropdown.handle_event(event, self.data_manager)
         gpu_index = self.gpu_dropdown.handle_event(event, self.data_manager)

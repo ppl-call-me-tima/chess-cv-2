@@ -36,7 +36,9 @@ class DataManager:
         if "inference_index" in file_data:
             self.inference_manager.set_device(int(file_data.get("inference_index")))
         if "lichess_token" in file_data:
-            self.lichess_manager.set_token(file_data.get("lichess_token"))
+            self.lichess_manager.set_oauth_header(file_data.get("lichess_token"))
+        if "lichess_username" in file_data:
+            self.lichess_manager.username = file_data.get("lichess_username")
 
     def set_value(self, index: int | str, label: str):
         file_data = self.get_dict()

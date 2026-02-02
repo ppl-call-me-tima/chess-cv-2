@@ -4,7 +4,6 @@ from chess import Color, WHITE, BLACK
 
 class LichessManager:
     def __init__(self):
-        # TODO: maybe impleent a file-handling system where you check for previous used username to auto-use default values
         self.username = None
         self.current_game_id = None
         self.colour: Color | None = None
@@ -14,45 +13,45 @@ class LichessManager:
             "Accept": "application/json",
         }
     
-    def set_token(self, token):
+    def set_oauth_header(self, token):
         if not token.startswith("lip_"):
-            return None
-        
+            return
+
         self.oauth_header = {
             "Authorization": f"Bearer {token}"
         }
 
-        self.set_username()
-        return self.username
-
-    def set_username(self):
-        url = "https://lichess.org/api/account"
-        response = req.get(url=url, headers=self.oauth_header)
-        self.username = response.json().get("username")
+    def fetch_username(self, token):
+        self.set_oauth_header(token)
+        try:
+            if self.oauth_header:
+                url = "https://lichess.org/api/account"
+                response = req.get(url=url, headers=self.oauth_header)
+                self.username = response.json().get("username")
+                return self.username
+        except Exception as e:
+            print(f"Error while trying to fetch username: {e}")
+            return None
 
     def set_current_game_id_and_colour(self):
-        username = self.username if self.username else ""
-        url = f"https://lichess.org/api/user/{username}/current-game"
-        response = req.get(url=url, headers=self.json_header)
-        self.current_game_id = response.json().get("id")
-        
-        white_player = response.json().get("players", {}).get("white", {}).get("user", {}).get("name")
-        black_player = response.json().get("players", {}).get("black", {}).get("user", {}).get("name")
+        if self.username:
+            url = f"https://lichess.org/api/user/{self.username}/current-game"
+            response = req.get(url=url, headers=self.json_header)
+            self.current_game_id = response.json().get("id")
+            
+            white_player = response.json().get("players", {}).get("white", {}).get("user", {}).get("name")
+            black_player = response.json().get("players", {}).get("black", {}).get("user", {}).get("name")
 
-        if white_player == self.username:
-            self.colour = WHITE
-        elif black_player == self.username:
-            self.colour = BLACK
+            if white_player == self.username:
+                self.colour = WHITE
+            elif black_player == self.username:
+                self.colour = BLACK
 
     def make_move(self, uci):
         game_id = self.current_game_id if self.current_game_id else ""
         url = f"https://lichess.org/api/board/game/{game_id}/move/{uci}"
         response = req.post(url=url, headers=self.oauth_header)
         print(response.json())
-
-    def set_credentials(self):
-        self.set_username()
-        self.set_current_game_id_and_colour()
 
     def reset_current_game_id(self):
         self.current_game_id = None
