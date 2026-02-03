@@ -66,8 +66,10 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.undo_move()
                         elif btn["action"] == "connect_lichess":
                             self.lichess_manager.set_current_game_id_and_colour()
-                        elif btn["action"] == "engine_on" or btn["action"] == "engine_off":
-                            await self.detection_manager.position.toggle_engine()
+                        elif btn["action"] == "engine_on" and not self.lichess_manager.is_lichess_connected():
+                            await self.detection_manager.position.turn_engine_on()
+                        elif btn["action"] == "engine_off":
+                            self.detection_manager.position.turn_engine_off()
                         elif btn["action"] == "flip_board":
                             self.detection_manager.position.flip_board()
 

@@ -177,9 +177,9 @@ class Position:
         
         return achievable_from_current, new_move_pushed, turn
 
-    async def toggle_engine(self):
+    async def turn_engine_on(self):
         """
-        Toggle engine ON/OFF by adding/removing tasks for the engine.
+        Toggle engine ON by adding tasks for the engine.
         This function also initializes the engine if it hasn't been yet. Hence needs to be awaited.
         Only works if the initial position is set.
         """
@@ -191,11 +191,21 @@ class Position:
 
         if not self.engine_on:
             self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
-        else:
-            if not self.engine_task.done():
-                self.engine_task.cancel()
+        
+        self.engine_on = True
 
-        self.engine_on = not self.engine_on
+    def turn_engine_off(self):
+        """
+        Toggle engine OFF by removing tasks for the engine.
+        Only works if the engine has been initialized before and self.engine_task has been populated atleast once
+        """
+        if self.engine is None or self.engine_task is None:
+            return
+
+        if not self.engine_task.done():
+            self.engine_task.cancel()
+        
+        self.engine_on = False
 
     def undo_move(self):
         try:

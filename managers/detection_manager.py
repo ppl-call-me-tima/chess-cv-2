@@ -45,11 +45,15 @@ class DetectionManger:
             else:
                 valid, pushed_move, turn = self.position.is_next_position_valid(current_chess.FEN())
 
-                if lichess_manager.is_lichess_connected() and valid and pushed_move:
-                    if turn == lichess_manager.colour:
-                        lichess_manager.make_move(pushed_move)
-                    else:
-                        winsound.Beep(2500, 100)
+                if lichess_manager.is_lichess_connected():
+                    if self.position.engine_on:
+                        self.position.turn_engine_off()
+
+                    if valid and pushed_move:
+                        if turn == lichess_manager.colour:
+                            lichess_manager.make_move(pushed_move)
+                        else:
+                            winsound.Beep(2500, 100)
 
         # print("fen:", self.position.chess.fen())
 
