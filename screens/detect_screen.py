@@ -44,6 +44,9 @@ class DetectScreen(BaseScreen):
         self.detection_manager.position.set_initial(False)
         self.data_manager.read_and_update_managers()
 
+    def on_exit(self):
+        self.detection_manager.camera_manager.close_camera()
+
     async def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -51,6 +54,7 @@ class DetectScreen(BaseScreen):
                 for btn in self.buttons:
                     if btn["rect"].collidepoint(mouse_pos) and btn["active"]:
                         if btn["action"] == "back":
+                            self.on_exit()
                             self.screen_manager.set_screen("menu")
                         elif btn["action"] == "set_position_state":
                             self.detection_manager.position.set_initial(True)

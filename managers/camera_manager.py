@@ -40,3 +40,7 @@ class CameraManager:
                 return frame
         
         return None
+
+    def close_camera(self):
+        if self.cap.isOpened():
+            self.cap.release()

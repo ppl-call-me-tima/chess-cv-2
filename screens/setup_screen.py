@@ -60,6 +60,9 @@ class SetupScreen(BaseScreen):
     def on_enter(self):
         self.data_manager.read_and_update_managers()
 
+    def on_exit(self):
+        self.camera_manager.close_camera()
+
     async def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -67,6 +70,7 @@ class SetupScreen(BaseScreen):
                 for btn in self.buttons:
                     if btn["rect"].collidepoint(mouse_pos):
                         if btn["action"] == "back":
+                            self.on_exit()
                             self.screen_manager.set_screen("menu")
                         elif btn["action"] == "lichess_token":
                             token = pygame.scrap.get(pygame.SCRAP_TEXT).decode().rstrip('\x00')
