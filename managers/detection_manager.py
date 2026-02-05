@@ -51,7 +51,8 @@ class DetectionManger:
 
                     if valid and pushed_move:
                         if turn == lichess_manager.colour:
-                            lichess_manager.make_move(pushed_move)
+                            if not lichess_manager.make_move(pushed_move):
+                                self.position.chess.pop()
                         else:
                             winsound.Beep(2500, 100)
 

@@ -1,6 +1,7 @@
 import requests as req
 req.packages.urllib3.util.connection.HAS_IPV6 = False
 from chess import Color, WHITE, BLACK
+from helpers.logger import log
 
 class LichessManager:
     def __init__(self):
@@ -48,10 +49,20 @@ class LichessManager:
                 self.colour = BLACK
 
     def make_move(self, uci):
-        game_id = self.current_game_id if self.current_game_id else ""
-        url = f"https://lichess.org/api/board/game/{game_id}/move/{uci}"
-        response = req.post(url=url, headers=self.oauth_header)
-        print(response.json())
+        """
+        Returns False if error occurs while sending move using Lichess Board API, else True.
+        
+        :param uci: The move in `UCI` notation.
+        """
+        try:
+            game_id = self.current_game_id if self.current_game_id else ""
+            url = f"https://lichess.org/api/board/game/{game_id}/move/{uci}"
+            response = req.post(url=url, headers=self.oauth_header)
+            print(response.json())
+            return True
+        except Exception as e:
+            log(f"Error in sending move to Lichess: {e.__str__()}")
+            return False
 
     def reset_current_game_id(self):
         self.current_game_id = None
