@@ -164,10 +164,7 @@ class Position:
                 # log(f"Half move made: {uci}")
 
                 if self.engine_on:
-                    if not self.engine_task.done():
-                        self.engine_task.cancel()
-
-                    self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
+                    self.update_engine_task()
 
                 new_move_pushed = uci
                 achievable_from_current = True
@@ -207,10 +204,21 @@ class Position:
         
         self.engine_on = False
 
+    def update_engine_task(self):
+        """
+        Syncs engine's current task with current state of `position.chess` if engine is turned on.
+        """
+        if not self.engine_task.done():
+            self.engine_task.cancel()
+        self.engine_task = asyncio.create_task(engine_analysis(self.engine, self.chess))
+
     def undo_move(self):
         try:
             self.chess.pop()
             self.current_matrix = self.generate_matrix_with_fen(self.chess.board_fen())
+
+            if self.engine_on:
+                self.update_engine_task()
         except IndexError:
             log("Exception: No moves left to undo.")
 
