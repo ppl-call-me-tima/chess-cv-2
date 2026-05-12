@@ -18,7 +18,7 @@ class SetupScreen(BaseScreen):
 
         self.buttons = [
             {"img": "back.png", "action": "back", "active": True, "rect": pygame.Rect(10, 10, 50, 50)},
-            {"text": "Paste Lichess Token", "action": "lichess_token", "active": True, "rect": pygame.Rect(50, 600, 400, 40)}
+            {"text": "Paste Lichess Token", "action": "lichess_token", "active": True, "rect": pygame.Rect(50, 530, 400, 40)}
         ]
         
         self.camera_manager = camera_manager
@@ -29,32 +29,47 @@ class SetupScreen(BaseScreen):
         self.cameras = self.camera_manager.get_camera_list()
         self.devices = self.inference_manager.get_device_list()
 
+        # labels
+        starting_y = 100
+        gap_y = 200
+
         self.labels = [
-            {"text": "Select Camera:", "rect": pygame.Rect(50, 170, 400, 30)},
-            {"text": "Select GPU/CPU:", "rect": pygame.Rect(50, 370, 400, 30)},
-            {"text": "Verify username:", "rect": pygame.Rect(50, 570, 200, 30)},
+            {"text": "Select Camera:"},
+            {"text": "Select GPU/CPU:"},
+            {"text": "Verify username:"},
         ]
 
-        self.camera_dropdown = Dropdown(
-            50, 200, 400, 40,
-            label="camera_index",
-            font=self.font,
-            options=[cam[1] for cam in self.cameras], 
-            default_text="Choose camera"
-        )
-        self.gpu_dropdown = Dropdown(
-            50, 400, 400, 40,
-            label="inference_index",
-            font=self.font,
-            options=self.devices,
-            default_text="Choose inference device",
-        )
+        for idx, label in enumerate(self.labels):
+            label["rect"] = pygame.Rect(50, starting_y + idx * gap_y, 200, 30)
+
+        # dropdowns
+        label_dropdown_gap_y = 30
+        
+        self.dropdowns = [
+            Dropdown(
+                50, 0, 400, 40,
+                label="camera_index",
+                font=self.font,
+                options=[cam[1] for cam in self.cameras],
+                default_text="Choose camera"
+            ),
+            Dropdown(
+                50, 0, 400, 40,
+                label="inference_index",
+                font=self.font,
+                options=self.devices,
+                default_text="Choose inference device",
+            )
+        ]
+
+        for i in range(len(self.dropdowns)):
+            self.dropdowns[i].rect.y = self.labels[i]["rect"].y + label_dropdown_gap_y
 
         self.feed_surf = None
         self.feed_rect = pygame.Rect(500, 50, 730, 620)
         self.feed_text = "No camera selected"
 
-        self.username_rect = pygame.Rect(210, 570, 200, 30)
+        self.username_rect = pygame.Rect(210, 500, 200, 30)
         self.username_text = None
 
     def on_enter(self):
@@ -81,8 +96,8 @@ class SetupScreen(BaseScreen):
                                 self.data_manager.set_value(username, "lichess_username")
                                 self.username_text = username
 
-        camera_index = self.camera_dropdown.handle_event(event, self.data_manager)
-        gpu_index = self.gpu_dropdown.handle_event(event, self.data_manager)
+        camera_index = self.dropdowns[0].handle_event(event, self.data_manager)
+        gpu_index = self.dropdowns[1].handle_event(event, self.data_manager)
 
         if camera_index is not None:
             self.camera_manager.set_camera(camera_index)
@@ -123,8 +138,8 @@ class SetupScreen(BaseScreen):
         for label in self.labels:
             surface.blit(self.font.render(label["text"], True, self.font_colour), label["rect"])
         
-        self.camera_dropdown.draw(surface)
-        self.gpu_dropdown.draw(surface)
+        for dropdown in self.dropdowns:
+            dropdown.draw(surface)
 
         pygame.draw.rect(surface, (255, 255, 255), self.feed_rect, 1)
 
