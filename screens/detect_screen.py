@@ -7,6 +7,7 @@ from screens.base_screen import BaseScreen
 from managers.detection_manager import DetectionManger
 from managers.lichess_manager import LichessManager
 from managers.data_manager import DataManager
+from managers.virtual_board_manager import VirtualBoard
 
 from helpers.misc import cv2pygame
 from helpers.engine_analysis.shared_resource import shared_resource
@@ -25,6 +26,7 @@ class DetectScreen(BaseScreen):
         self.detection_manager = DetectionManger(camera_manager, inference_manager)
         self.lichess_manager = lichess_manager
         self.data_manager = data_manager
+        self.virtual_board_manager = VirtualBoard()
 
         self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
@@ -48,6 +50,9 @@ class DetectScreen(BaseScreen):
         self.detection_manager.camera_manager.close_camera()
 
     async def handle_event(self, event: pygame.event.Event):
+        if self.virtual_board_manager.is_enabled:
+            self.virtual_board_manager.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_pos = event.pos
@@ -108,7 +113,11 @@ class DetectScreen(BaseScreen):
         svg_board = cv2pygame(self.detection_manager.position.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
 
-        frame = self.detection_manager.get_feed()
+        if self.virtual_board_manager.is_enabled:
+            frame = self.virtual_board_manager.get_feed()
+        else:
+            frame = self.detection_manager.get_feed()
+        
         if frame is None:
             return
 
