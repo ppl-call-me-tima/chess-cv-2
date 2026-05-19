@@ -11,16 +11,18 @@ class VirtualBoard:
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = event.pos
             for cood, rect in self.state_matrix.items():
+                mouse_pos = event.pos
                 if rect.collidepoint(mouse_pos):
                     if self.held_piece_cood is None:
                         self.held_piece_cood = cood
                     else:
                         r, c = self.held_piece_cood
-                        self.held_piece_cood = None
-                        self.matrix[cood[0]][cood[1]] = self.matrix[r][c]
+                        piece = self.matrix[r][c]
+                        
                         self.matrix[r][c] = ""
+                        self.matrix[cood[0]][cood[1]] = piece
+                        self.held_piece_cood = None
 
     def __load_sprite_sheet(self, SQ_SIZE):
         sheet = pygame.image.load(PIECES_SPRITE_SHEET_PATH).convert_alpha()
@@ -53,7 +55,7 @@ class VirtualBoard:
 
         for r in range(DIMENSION):
             for c in range(DIMENSION):
-                colour = (10, 10, 10) if (r + c) % 2 else (245, 245, 245)
+                colour = (50, 50, 50) if (r + c) % 2 else (245, 245, 245)
                 x = board_rect.left + c * SQ_SIZE + 1
                 y = board_rect.top + r * SQ_SIZE + 1
                 rect = pygame.Rect(x, y, SQ_SIZE, SQ_SIZE)
