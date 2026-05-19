@@ -26,7 +26,7 @@ class DetectScreen(BaseScreen):
         self.detection_manager = DetectionManger(camera_manager, inference_manager)
         self.lichess_manager = lichess_manager
         self.data_manager = data_manager
-        self.virtual_board_manager = VirtualBoard()
+        self.virtual_board_manager = VirtualBoard(self.feed_rect)
 
         self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
@@ -134,7 +134,7 @@ class DetectScreen(BaseScreen):
 
         if self.feed_surf:
             if self.virtual_board_manager.is_enabled:
-                self.virtual_board_manager.draw_board(surface, self.feed_rect)
+                self.virtual_board_manager.draw_board(surface)
             else:
                 surface.blit(self.feed_surf, self.feed_rect)
         else:

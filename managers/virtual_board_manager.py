@@ -3,29 +3,18 @@ import pygame
 PIECES_SPRITE_SHEET_PATH = r"assets\chesspieces.png"
 
 class VirtualBoard:
-    def __init__(self):
+    def __init__(self, feed_rect: pygame.Rect):
         self.is_enabled = True
-        self.matrix = [[""] * 8 for i in range(8)]  # 8x8 matrix respresenting board
-        self.state_matrix = {}                      # dict of {cood: pygame.Rect}
-        self.held_piece_cood = None                 # (r, c) of chessboard sq of piece held / None
 
-    def handle_event(self, event: pygame.event.Event):
-        # move making
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            for cood, rect in self.state_matrix.items():
-                mouse_pos = event.pos
-                if rect.collidepoint(mouse_pos):
-                    if self.held_piece_cood is None and self.matrix[r][c] != "":
-                        self.held_piece_cood = cood
-                    else:
-                        r, c = self.held_piece_cood
-                        piece = self.matrix[r][c]
-                        
-                        self.matrix[r][c] = ""
-                        self.matrix[cood[0]][cood[1]] = piece
-                        self.held_piece_cood = None
+        self.TOPLEFT = feed_rect.topleft
+        self.SQ_SIZE = feed_rect.height // 8
 
-    def __load_sprite_sheet(self, SQ_SIZE):
+        self.matrix = [[""] * 8 for i in range(8)]      # 8x8 matrix respresenting board
+        self.state_matrix = {}                          # dict of {cood: pygame.Rect}
+        self.held_piece_cood = None                     # (r, c) of chessboard sq of piece held / None
+        self.piece_images = self.__load_sprite_sheet()  # dict of {"k/q/n/b/r/p": pygame.Surface (piece image)}
+
+    def __load_sprite_sheet(self):
         sheet = pygame.image.load(PIECES_SPRITE_SHEET_PATH).convert_alpha()
         sheet_width, sheet_height = sheet.get_size()
 
@@ -42,29 +31,40 @@ class VirtualBoard:
         for name, pos in piece_map.items():
             rect = pygame.Rect(pos[0] * piece_width, pos[1] * piece_height, piece_width, piece_height)
             piece_image = sheet.subsurface(rect)
-            images[name] = pygame.transform.scale(piece_image, (SQ_SIZE, SQ_SIZE))
+            images[name] = pygame.transform.scale(piece_image, (self.SQ_SIZE, self.SQ_SIZE))
         
         return images
 
-    def draw_board(self, surface: pygame.Surface, board_rect: pygame.Rect):
+    def handle_event(self, event: pygame.event.Event):
+        # move making
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for cood, rect in self.state_matrix.items():
+                mouse_pos = event.pos
+                if rect.collidepoint(mouse_pos):
+                    if self.held_piece_cood is None:
+                        if self.matrix[cood[0]][cood[1]] != "":
+                            self.held_piece_cood = cood
+                    else:
+                        r, c = self.held_piece_cood
+                        piece = self.matrix[r][c]
+                        
+                        self.matrix[r][c] = ""
+                        self.matrix[cood[0]][cood[1]] = piece
+                        self.held_piece_cood = None
+
+    def draw_board(self, surface: pygame.Surface):
         # board
-        HEIGHT = board_rect.height
-        DIMENSION = 8
-        SQ_SIZE = HEIGHT // DIMENSION
-
-        piece_images = self.__load_sprite_sheet(SQ_SIZE)
-
-        for r in range(DIMENSION):
-            for c in range(DIMENSION):
+        for r in range(8):
+            for c in range(8):
                 colour = (60, 60, 60) if (r + c) % 2 else (245, 245, 245)
-                x = board_rect.left + c * SQ_SIZE + 1
-                y = board_rect.top + r * SQ_SIZE + 1
-                rect = pygame.Rect(x, y, SQ_SIZE, SQ_SIZE)
+                x = self.TOPLEFT[0] + c * self.SQ_SIZE + 1
+                y = self.TOPLEFT[1] + r * self.SQ_SIZE + 1
+                rect = pygame.Rect(x, y, self.SQ_SIZE, self.SQ_SIZE)
                 self.state_matrix[(r, c)] = rect
                 pygame.draw.rect(surface, colour, rect)
 
                 if self.matrix[r][c] != "":
-                    surface.blit(piece_images[self.matrix[r][c]], (x, y))
+                    surface.blit(self.piece_images[self.matrix[r][c]], (x, y))
 
         # sq highlighting
         mouse_pos = pygame.mouse.get_pos()
