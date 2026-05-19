@@ -113,10 +113,7 @@ class DetectScreen(BaseScreen):
         svg_board = cv2pygame(self.detection_manager.position.get_board())
         self.board_surf = pygame.surfarray.make_surface(svg_board)
 
-        if self.virtual_board_manager.is_enabled:
-            frame = self.virtual_board_manager.get_feed()
-        else:
-            frame = self.detection_manager.get_feed()
+        frame = self.detection_manager.get_feed()
         
         if frame is None:
             return
@@ -136,7 +133,10 @@ class DetectScreen(BaseScreen):
             surface.blit(self.board_surf, self.board_rect)
 
         if self.feed_surf:
-            surface.blit(self.feed_surf, self.feed_rect)
+            if self.virtual_board_manager.is_enabled:
+                self.virtual_board_manager.draw_board(surface, self.feed_rect)
+            else:
+                surface.blit(self.feed_surf, self.feed_rect)
         else:
             text_surf = self.font.render("Camera feed not available", True, (100, 100, 100))
             text_rect = text_surf.get_rect(center=self.feed_rect.center)
