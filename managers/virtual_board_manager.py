@@ -5,10 +5,22 @@ PIECES_SPRITE_SHEET_PATH = r"assets\chesspieces.png"
 class VirtualBoard:
     def __init__(self):
         self.is_enabled = True
-        self.matrix = [[""] * 8 for i in range(8)]
+        self.matrix = [[""] * 8 for i in range(8)]  # 8x8 matrix respresenting board
+        self.state_matrix = {}                      # dict of {cood: pygame.Rect}
+        self.held_piece_cood = None                 # (r, c) of chessboard sq of piece held / None
 
-    def handle_event(self, event):
-        pass
+    def handle_event(self, event: pygame.event.Event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
+            for cood, rect in self.state_matrix.items():
+                if rect.collidepoint(mouse_pos):
+                    if self.held_piece_cood is None:
+                        self.held_piece_cood = cood
+                    else:
+                        r, c = self.held_piece_cood
+                        self.held_piece_cood = None
+                        self.matrix[cood[0]][cood[1]] = self.matrix[r][c]
+                        self.matrix[r][c] = ""
 
     def __load_sprite_sheet(self, SQ_SIZE):
         sheet = pygame.image.load(PIECES_SPRITE_SHEET_PATH).convert_alpha()
@@ -44,7 +56,9 @@ class VirtualBoard:
                 colour = (10, 10, 10) if (r + c) % 2 else (245, 245, 245)
                 x = board_rect.left + c * SQ_SIZE + 1
                 y = board_rect.top + r * SQ_SIZE + 1
-                pygame.draw.rect(surface, colour, pygame.Rect(x, y, SQ_SIZE, SQ_SIZE))
+                rect = pygame.Rect(x, y, SQ_SIZE, SQ_SIZE)
+                self.state_matrix[(r, c)] = rect
+                pygame.draw.rect(surface, colour, rect)
 
                 if self.matrix[r][c] != "":
                     surface.blit(piece_images[self.matrix[r][c]], (x, y))
