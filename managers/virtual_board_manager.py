@@ -10,11 +10,12 @@ class VirtualBoard:
         self.held_piece_cood = None                 # (r, c) of chessboard sq of piece held / None
 
     def handle_event(self, event: pygame.event.Event):
+        # move making
         if event.type == pygame.MOUSEBUTTONDOWN:
             for cood, rect in self.state_matrix.items():
                 mouse_pos = event.pos
                 if rect.collidepoint(mouse_pos):
-                    if self.held_piece_cood is None:
+                    if self.held_piece_cood is None and self.matrix[r][c] != "":
                         self.held_piece_cood = cood
                     else:
                         r, c = self.held_piece_cood
@@ -55,7 +56,7 @@ class VirtualBoard:
 
         for r in range(DIMENSION):
             for c in range(DIMENSION):
-                colour = (50, 50, 50) if (r + c) % 2 else (245, 245, 245)
+                colour = (60, 60, 60) if (r + c) % 2 else (245, 245, 245)
                 x = board_rect.left + c * SQ_SIZE + 1
                 y = board_rect.top + r * SQ_SIZE + 1
                 rect = pygame.Rect(x, y, SQ_SIZE, SQ_SIZE)
@@ -65,4 +66,8 @@ class VirtualBoard:
                 if self.matrix[r][c] != "":
                     surface.blit(piece_images[self.matrix[r][c]], (x, y))
 
-        # piece selection
+        # sq highlighting
+        mouse_pos = pygame.mouse.get_pos()
+        for rect in self.state_matrix.values():
+            if rect.collidepoint(mouse_pos):
+                pygame.draw.rect(surface, (255, 0, 0), rect, 2)
