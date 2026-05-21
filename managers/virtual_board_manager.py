@@ -1,3 +1,4 @@
+import os
 import pygame
 
 PIECES_SPRITE_SHEET_PATH = r"assets\chesspieces.png"
@@ -11,6 +12,7 @@ class VirtualBoard:
         self.HEIGHT = feed_rect.height
         self.SQ_SIZE = feed_rect.height // 8
         self.SELECTOR_SQ_SIZE = int(0.75 * self.SQ_SIZE)
+        self.OTHER_SQ_SIZE = int(0.75 * self.SELECTOR_SQ_SIZE)
 
         self.board_matrix = [[""] * 8 for i in range(8)]         # 8x8 matrix respresenting board
         self.board_state_matrix = {}                             # dict of {cood: pygame.Rect} for chessboard
@@ -23,6 +25,19 @@ class VirtualBoard:
         )
 
         self.piece_images, self.selector_images = self.__load_sprite_sheet()  # dict of {piece: pygame.Surface (piece/selector image)}
+
+        self.other_buttons = [
+            {"action": "reset", "image": r"reset.png", "rect": pygame.Rect(
+                self.LEFT + self.HEIGHT,
+                self.TOP + self.HEIGHT - self.OTHER_SQ_SIZE - 20,
+                self.OTHER_SQ_SIZE, self.OTHER_SQ_SIZE
+            )},
+            {"action": "clear", "image": r"bin.png", "rect": pygame.Rect(
+                self.LEFT + self.HEIGHT + self.OTHER_SQ_SIZE,
+                self.TOP + self.HEIGHT - self.OTHER_SQ_SIZE - 20,
+                self.OTHER_SQ_SIZE, self.OTHER_SQ_SIZE
+            )},
+        ]
 
     def __load_sprite_sheet(self):
         sheet = pygame.image.load(PIECES_SPRITE_SHEET_PATH).convert_alpha()
@@ -47,11 +62,23 @@ class VirtualBoard:
 
         return piece_images, selector_images
 
+    def __reset_board(self):
+        self.board_matrix = [
+            ["r", "n", "b", "q", "k", "b", "n", "r"],
+            ["p"] * 8,
+            [""] * 8, [""] * 8, [""] * 8, [""] * 8,
+            ["P"] * 8,
+            ["R", "N", "B", "Q", "K", "B", "N", "R"]
+        ]
+
+    def __clear_board(self):
+        self.board_matrix = [[""] * 8 for i in range(8)]
+
     def handle_event(self, event: pygame.event.Event):
         # move making and infinite piece selecting
         if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
             for cood, rect in self.board_state_matrix.items():
-                mouse_pos = event.pos
                 if rect.collidepoint(mouse_pos):
                     if self.held_piece["piece"] is None and not self.held_piece["is_infinite"]:
                         if self.board_matrix[cood[0]][cood[1]] != "":
@@ -63,16 +90,22 @@ class VirtualBoard:
                         self.held_piece["is_infinite"] = False
 
             for piece, rect in self.selector_state_matrix.items():
-                mouse_pos = event.pos
                 if rect.collidepoint(mouse_pos):
                     self.held_piece["piece"] = piece
                     self.held_piece["is_infinite"] = True
+
+            for btn in self.other_buttons:
+                if btn["rect"].collidepoint(mouse_pos):
+                    if btn["action"] == "reset":
+                        self.__reset_board()
+                    elif btn["action"] == "clear":
+                        self.__clear_board()
 
     def draw_board(self, surface: pygame.Surface):
         # board
         for r in range(8):
             for c in range(8):
-                colour = (60, 60, 60) if (r + c) % 2 else (245, 245, 245)
+                colour = (100, 100, 100) if (r + c) % 2 else (245, 245, 245)
                 x = self.LEFT + c * self.SQ_SIZE + 1
                 y = self.TOP + r * self.SQ_SIZE + 1
                 rect = pygame.Rect(x, y, self.SQ_SIZE, self.SQ_SIZE)
@@ -96,3 +129,10 @@ class VirtualBoard:
                 rect = pygame.Rect(x, y, self.SELECTOR_SQ_SIZE, self.SELECTOR_SQ_SIZE)
                 self.selector_state_matrix[self.selector_matrix[c][r]] = rect
                 surface.blit(self.selector_images[self.selector_matrix[c][r]], (x, y))
+
+        # other buttons
+        for btn in self.other_buttons:
+            img = pygame.image.load(os.path.join(f"assets/{btn['image']}"))
+            img = pygame.transform.scale(img, (self.OTHER_SQ_SIZE, self.OTHER_SQ_SIZE))
+            img_rect = img.get_rect(center=btn["rect"].center)
+            surface.blit(img, img_rect)

@@ -126,7 +126,7 @@ class DetectScreen(BaseScreen):
         pygame.draw.rect(surface, (20, 20, 20), self.board_rect)
         pygame.draw.rect(surface, (100, 100, 100), self.board_rect, 1)
 
-        pygame.draw.rect(surface, (20, 20, 20), self.feed_rect)
+        pygame.draw.rect(surface, (60, 60, 60), self.feed_rect)
         pygame.draw.rect(surface, (100, 100, 100), self.feed_rect, 1)
 
         if self.board_surf:
