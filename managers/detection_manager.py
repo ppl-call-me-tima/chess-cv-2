@@ -5,6 +5,7 @@ from constants import BOARD_POINTS, N
 from managers.lichess_manager import LichessManager
 from managers.camera_manager import CameraManager
 from managers.inference_manager import InferenceManager
+from managers.virtual_board_manager import VirtualBoardManager
 
 from helpers.perspective_transform import PerspectiveTransformer
 from helpers.chessboard import Chessboard
@@ -17,21 +18,29 @@ class DetectionManger:
         self.camera_manager = camera_manager
         self.inference_manager = inferece_manager
 
-    def make_detection(self, lichess_manager: LichessManager):
+    def make_detection(self, lichess_manager: LichessManager, virtual_board_manager: VirtualBoardManager):
         """
         Perform detection for the particular frame and update the class variables
-        that might be required for making detections along the way or externally at detect_screen.py
+        that might be required for making detections along the way or externally at `detect_screen.py`
+
+        If Virtual Board is enabled, bypass the camera feed and making inference,
+        directly use the virtual `board_matrix` to generate `current_chess` state
         """
 
-        frame = self.camera_manager.get_frame()
-        if frame is None:
-            return
-        
-        self.image = frame
-        corners = self.inference_manager.detect_corners(self.image, annotate=True)
-        piece_coods, piece_class = self.inference_manager.detect_pieces(self.image, annotate=True)
+        if virtual_board_manager.is_enabled:
+            current_chess = Chessboard(virtual=True, matrix=virtual_board_manager.board_matrix)
+        else:
+            frame = self.camera_manager.get_frame()
+            if frame is None:
+                return
+            
+            self.image = frame
+            corners = self.inference_manager.detect_corners(self.image, annotate=True)
+            piece_coods, piece_class = self.inference_manager.detect_pieces(self.image, annotate=True)
 
-        if corners is not None:
+            if corners is None:
+                return
+            
             transformer = PerspectiveTransformer(corners, BOARD_POINTS)
             warped_coods = transformer.transform_points(piece_coods)
             # warped_image = transformer.warp_image(self.image, N)
@@ -39,22 +48,22 @@ class DetectionManger:
             current_chess = Chessboard(warped_coods, piece_class, N)
             current_chess.rotate_anticlockwise()
 
-            if not self.position.is_initial_set():
-                #TODO: fix hard-code castling rights
-                self.position.set_fen(current_chess.FEN(), "KQkq")
-            else:
-                valid, pushed_move, turn = self.position.is_next_position_valid(current_chess.FEN())
+        if not self.position.is_initial_set():
+            #TODO: fix hard-code castling rights
+            self.position.set_fen(current_chess.FEN(), "KQkq")
+        else:
+            valid, pushed_move, turn = self.position.is_next_position_valid(current_chess.FEN())
 
-                if lichess_manager.is_lichess_connected():
-                    if self.position.engine_on:
-                        self.position.turn_engine_off()
+            if lichess_manager.is_lichess_connected():
+                if self.position.engine_on:
+                    self.position.turn_engine_off()
 
-                    if valid and pushed_move:
-                        if turn == lichess_manager.colour:
-                            if not lichess_manager.make_move(pushed_move):
-                                self.position.chess.pop()
-                        else:
-                            winsound.Beep(2500, 100)
+                if valid and pushed_move:
+                    if turn == lichess_manager.colour:
+                        if not lichess_manager.make_move(pushed_move):
+                            self.position.chess.pop()
+                    else:
+                        winsound.Beep(2500, 100)
 
         # print("fen:", self.position.chess.fen())
 
