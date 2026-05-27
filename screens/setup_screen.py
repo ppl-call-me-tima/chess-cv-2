@@ -136,7 +136,14 @@ class SetupScreen(BaseScreen):
         for btn in self.buttons:
                 if not btn["active"]: continue
 
-                color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
+                if btn["action"].startswith("virtual"):
+                    if btn["action"].endswith("on") and self.virtual_board_manager.is_enabled or \
+                       btn["action"].endswith("off") and not self.virtual_board_manager.is_enabled:
+                        color = (100, 100, 255)
+                    else:
+                        color = (70, 70, 70)
+                else:
+                    color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
 
                 if "img" in btn:
                     pygame.draw.rect(surface, color, btn["rect"], border_radius=10)

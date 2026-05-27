@@ -5,7 +5,7 @@ PIECES_SPRITE_SHEET_PATH = r"assets\chesspieces.png"
 
 class VirtualBoardManager:
     def __init__(self, feed_rect: pygame.Rect):
-        self.is_enabled = True
+        self.is_enabled = False
 
         self.LEFT = feed_rect.left
         self.TOP = feed_rect.top
