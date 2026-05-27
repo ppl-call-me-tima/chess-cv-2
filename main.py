@@ -23,15 +23,34 @@ async def main():
 
     pygame.scrap.init()
 
+    # Managers
     screen_manager = ScreenManager(screen)
     camera_manager = CameraManager()
     inference_manager = InferenceManager()
     lichess_manager = LichessManager()
     data_manager = DataManager(camera_manager, inference_manager, lichess_manager)
 
-    screen_manager.add_screen("menu", MenuScreen(screen_manager))
-    screen_manager.add_screen("detect", DetectScreen(screen_manager, camera_manager, inference_manager, data_manager, lichess_manager))
-    screen_manager.add_screen("setup", SetupScreen(screen_manager, camera_manager, inference_manager, data_manager, lichess_manager))
+    # Screens
+    menu_screen = MenuScreen(screen_manager)
+    detect_screen = DetectScreen(
+        screen_manager,
+        camera_manager,
+        inference_manager,
+        data_manager,
+        lichess_manager
+    )
+    setup_screen = SetupScreen(
+        screen_manager,
+        camera_manager,
+        inference_manager,
+        data_manager,
+        lichess_manager,
+        detect_screen.virtual_board_manager
+    )
+
+    screen_manager.add_screen("menu", menu_screen)
+    screen_manager.add_screen("detect", detect_screen)
+    screen_manager.add_screen("setup", setup_screen)
 
     screen_manager.set_screen("menu")
 

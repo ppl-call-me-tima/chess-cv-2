@@ -5,38 +5,51 @@ from managers.camera_manager import CameraManager
 from managers.inference_manager import InferenceManager
 from managers.data_manager import DataManager
 from managers.lichess_manager import LichessManager
+from managers.virtual_board_manager import VirtualBoardManager
 
 from screens.base_screen import BaseScreen
 from ui_components.dropdown import Dropdown
 from helpers.misc import cv2pygame
 
 class SetupScreen(BaseScreen):
-    def __init__(self, screen_manager, camera_manager: CameraManager, inference_manager: InferenceManager, data_manager: DataManager, lichess_manager: LichessManager):
+    def __init__(
+            self, screen_manager,
+            camera_manager: CameraManager,
+            inference_manager: InferenceManager,
+            data_manager: DataManager,
+            lichess_manager: LichessManager,
+            virtual_board_manager: VirtualBoardManager,
+        ):
+
         super().__init__(screen_manager)
         self.font = pygame.font.SysFont("Arial", 25)
         self.font_colour = pygame.Color(255, 255, 255)
 
         self.buttons = [
             {"img": "back.png", "action": "back", "active": True, "rect": pygame.Rect(10, 10, 50, 50)},
-            {"text": "Paste Lichess Token", "action": "lichess_token", "active": True, "rect": pygame.Rect(50, 530, 400, 40)}
+            {"text": "Paste Lichess Token", "action": "lichess_token", "active": True, "rect": pygame.Rect(50, 490, 400, 40)},
+            {"text": "ON", "action": "virtual_on", "active": True, "rect": pygame.Rect(250, 625, 60, 40)},
+            {"text": "OFF", "action": "virtual_off", "active": True, "rect": pygame.Rect(330, 625, 60, 40)},
         ]
         
         self.camera_manager = camera_manager
         self.inference_manager = inference_manager
         self.data_manager = data_manager
         self.lichess_manager = lichess_manager
+        self.virtual_board_manager = virtual_board_manager
 
         self.cameras = self.camera_manager.get_camera_list()
         self.devices = self.inference_manager.get_device_list()
 
         # labels
         starting_y = 100
-        gap_y = 200
+        gap_y = 175
 
         self.labels = [
             {"text": "Select Camera:"},
             {"text": "Select GPU/CPU:"},
             {"text": "Verify username:"},
+            {"text": "Virtual Keyboard:"},
         ]
 
         for idx, label in enumerate(self.labels):
@@ -69,7 +82,7 @@ class SetupScreen(BaseScreen):
         self.feed_rect = pygame.Rect(500, 50, 730, 620)
         self.feed_text = "No camera selected"
 
-        self.username_rect = pygame.Rect(210, 500, 200, 30)
+        self.username_rect = pygame.Rect(210, 450, 200, 30)
         self.username_text = None
 
     def on_enter(self):
@@ -95,6 +108,8 @@ class SetupScreen(BaseScreen):
                                 self.data_manager.set_value(token, "lichess_token")
                                 self.data_manager.set_value(username, "lichess_username")
                                 self.username_text = username
+                        elif btn["action"].startswith("virtual"):
+                            self.virtual_board_manager.is_enabled = btn["action"].endswith("on")
 
         camera_index = self.dropdowns[0].handle_event(event, self.data_manager)
         gpu_index = self.dropdowns[1].handle_event(event, self.data_manager)
@@ -121,7 +136,14 @@ class SetupScreen(BaseScreen):
         for btn in self.buttons:
                 if not btn["active"]: continue
 
-                color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
+                if btn["action"].startswith("virtual"):
+                    if btn["action"].endswith("on") and self.virtual_board_manager.is_enabled or \
+                       btn["action"].endswith("off") and not self.virtual_board_manager.is_enabled:
+                        color = (100, 100, 255)
+                    else:
+                        color = (70, 70, 70)
+                else:
+                    color = (100, 100, 255) if btn["rect"].collidepoint(mouse_pos) else (70, 70, 70)
 
                 if "img" in btn:
                     pygame.draw.rect(surface, color, btn["rect"], border_radius=10)

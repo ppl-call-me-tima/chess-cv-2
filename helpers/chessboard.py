@@ -1,7 +1,11 @@
 import os
 
 class Chessboard:
-    def __init__(self, xy, piece_class, N):
+    def __init__(self, xy=None, piece_class=None, N=None, virtual=False, matrix=None):
+        if virtual:
+            self.matrix = matrix
+            return
+        
         self.matrix = []
         
         PADDING = int(os.environ.get("BOARD_PADDING"))

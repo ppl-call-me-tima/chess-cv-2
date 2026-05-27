@@ -7,6 +7,7 @@ from screens.base_screen import BaseScreen
 from managers.detection_manager import DetectionManger
 from managers.lichess_manager import LichessManager
 from managers.data_manager import DataManager
+from managers.virtual_board_manager import VirtualBoardManager
 
 from helpers.misc import cv2pygame
 from helpers.engine_analysis.shared_resource import shared_resource
@@ -25,6 +26,7 @@ class DetectScreen(BaseScreen):
         self.detection_manager = DetectionManger(camera_manager, inference_manager)
         self.lichess_manager = lichess_manager
         self.data_manager = data_manager
+        self.virtual_board_manager = VirtualBoardManager(self.feed_rect)
 
         self.font = pygame.font.SysFont("Arial", 24)
         self.buttons = [
@@ -48,6 +50,9 @@ class DetectScreen(BaseScreen):
         self.detection_manager.camera_manager.close_camera()
 
     async def handle_event(self, event: pygame.event.Event):
+        if self.virtual_board_manager.is_enabled:
+            self.virtual_board_manager.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_pos = event.pos
@@ -78,7 +83,7 @@ class DetectScreen(BaseScreen):
                             self.detection_manager.position.flip_board()
 
     def update(self):
-        self.detection_manager.make_detection(self.lichess_manager)
+        self.detection_manager.make_detection(self.lichess_manager, self.virtual_board_manager)
 
         for btn in self.buttons:
             if self.detection_manager.position.is_initial_set():
@@ -109,6 +114,7 @@ class DetectScreen(BaseScreen):
         self.board_surf = pygame.surfarray.make_surface(svg_board)
 
         frame = self.detection_manager.get_feed()
+        
         if frame is None:
             return
 
@@ -120,18 +126,22 @@ class DetectScreen(BaseScreen):
         pygame.draw.rect(surface, (20, 20, 20), self.board_rect)
         pygame.draw.rect(surface, (100, 100, 100), self.board_rect, 1)
 
-        pygame.draw.rect(surface, (20, 20, 20), self.feed_rect)
+        pygame.draw.rect(surface, (60, 60, 60), self.feed_rect)
         pygame.draw.rect(surface, (100, 100, 100), self.feed_rect, 1)
 
         if self.board_surf:
             surface.blit(self.board_surf, self.board_rect)
 
-        if self.feed_surf:
-            surface.blit(self.feed_surf, self.feed_rect)
+
+        if self.virtual_board_manager.is_enabled:
+            self.virtual_board_manager.draw_board(surface)
         else:
-            text_surf = self.font.render("Camera feed not available", True, (100, 100, 100))
-            text_rect = text_surf.get_rect(center=self.feed_rect.center)
-            surface.blit(text_surf, text_rect)
+            if self.feed_surf:
+                surface.blit(self.feed_surf, self.feed_rect)
+            else:
+                text_surf = self.font.render("Camera feed not available", True, (100, 100, 100))
+                text_rect = text_surf.get_rect(center=self.feed_rect.center)
+                surface.blit(text_surf, text_rect)
 
         if self.detection_manager.position.engine_on:
             draw_eval_bar(
